@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Editar Empleado{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4><i class="bi bi-pencil"></i> Editar Empleado</h4>
+        <a href="{{ url_for('admin.listar_empleados') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="card-custom">
+        <div class="card-header">
+            <i class="bi bi-person"></i> Editando: {{ empleado.user.nombre_completo }}
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombres <span class="text-danger">*</span></label>
+                        <input type="text" name="nombres" class="form-control" required
+                               value="{{ empleado.user.nombres }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Apellidos <span class="text-danger">*</span></label>
+                        <input type="text" name="apellidos" class="form-control" required
+                               value="{{ empleado.user.apellidos }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre de Usuario <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-at"></i></span>
+                            <input type="text" name="username" class="form-control" required
+                                   value="{{ empleado.user.username }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Cargo <span class="text-danger">*</span></label>
+                        <input type="text" name="cargo" class="form-control" required
+                               value="{{ empleado.cargo }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha de Ingreso</label>
+                        <input type="date" name="fecha_ingreso" class="form-control"
+                               value="{{ empleado.fecha_ingreso.strftime('%Y-%m-%d') }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nueva Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="new_password" class="form-control"
+                                   placeholder="Dejar vacío para no cambiar" minlength="6">
+                        </div>
+                        <small class="text-muted">Dejar vacío si no desea cambiar la contraseña.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Estado</label>
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input" type="checkbox" name="activo"
+                                   id="activo" {% if empleado.user.activo %}checked{% endif %}>
+                            <label class="form-check-label" for="activo">
+                                {% if empleado.user.activo %}
+                                <span class="text-success">Activo</span>
+                                {% else %}
+                                <span class="text-secondary">Inactivo</span>
+                                {% endif %}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-check-circle"></i> Guardar Cambios
+                    </button>
+                    <a href="{{ url_for('admin.listar_empleados') }}" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

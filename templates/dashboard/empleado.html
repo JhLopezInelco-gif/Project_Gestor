@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Empleado{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h4 class="mb-4">
+        <i class="bi bi-speedometer2"></i> Mi Panel de Aprendizaje
+    </h4>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#dbeafe;color:#2563eb;">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ stats.cursos_disponibles or 0 }}</div>
+                        <div class="stat-label">Cursos Disponibles</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#dcfce7;color:#16a34a;">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ stats.cursos_completados or 0 }}</div>
+                        <div class="stat-label">Cursos Aprobados</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ stats.cursos_pendientes or 0 }}</div>
+                        <div class="stat-label">Cursos Pendientes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card-custom">
+                <div class="card-header">
+                    <i class="bi bi-lightning"></i> Acciones Rápidas
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('empleado.listar_capacitaciones') }}"
+                           class="btn btn-primary">
+                            <i class="bi bi-search"></i> Buscar Capacitaciones
+                        </a>
+                        <a href="{{ url_for('empleado.mi_progreso') }}"
+                           class="btn btn-outline-primary">
+                            <i class="bi bi-bar-chart-line"></i> Ver Mi Progreso
+                        </a>
+                        <a href="{{ url_for('documentos.listar') }}"
+                           class="btn btn-outline-info">
+                            <i class="bi bi-folder2-open"></i> Ver Documentos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card-custom">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i> ¿Cómo funciona?
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0 text-muted">
+                        <li class="mb-2">
+                            <strong>Busque</strong> capacitaciones disponibles por área.
+                        </li>
+                        <li class="mb-2">
+                            <strong>Revise</strong> el material de apoyo (videos, PDFs, links).
+                        </li>
+                        <li class="mb-2">
+                            <strong>Responda</strong> el cuestionario de evaluación.
+                        </li>
+                        <li>
+                            <strong>Apruebe</strong> con al menos <span class="fw-bold text-success">80%</span>
+                            de respuestas correctas.
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Gestionar Empleados{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4><i class="bi bi-people"></i> Gestión de Empleados</h4>
+        <a href="{{ url_for('admin.crear_empleado') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nuevo Empleado
+        </a>
+    </div>
+
+    <div class="card-custom">
+        <div class="card-header">
+            <i class="bi bi-list-ul"></i> Lista de Empleados ({{ empleados|length }})
+        </div>
+        <div class="card-body">
+            {% if empleados %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre Completo</th>
+                            <th>Usuario</th>
+                            <th>Cargo</th>
+                            <th>Fecha Ingreso</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in empleados %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <i class="bi bi-person-circle text-muted"></i>
+                                {{ emp.user.nombre_completo }}
+                            </td>
+                            <td><code>{{ emp.user.username }}</code></td>
+                            <td>{{ emp.cargo }}</td>
+                            <td>{{ emp.fecha_ingreso.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                {% if emp.user.activo %}
+                                <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.editar_empleado', empleado_id=emp.id) }}"
+                                   class="btn btn-sm btn-outline-warning" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('admin.eliminar_empleado', empleado_id=emp.id) }}"
+                                      style="display:inline;"
+                                      onsubmit="return confirm('¿Está seguro de eliminar al empleado {{ emp.user.nombre_completo }}?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4 text-muted">
+                <i class="bi bi-inbox" style="font-size:3rem;"></i>
+                <p class="mt-2">No hay empleados registrados.</p>
+                <a href="{{ url_for('admin.crear_empleado') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Crear Primer Empleado
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

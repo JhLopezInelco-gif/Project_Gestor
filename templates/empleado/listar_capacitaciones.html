@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Buscar Capacitaciones{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h4 class="mb-4"><i class="bi bi-search"></i> Buscar Capacitaciones</h4>
+
+    <!-- Filtros -->
+    <div class="search-bar">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Buscar por título</label>
+                <input type="text" class="form-control" name="buscar"
+                       value="{{ buscar }}" placeholder="Ej: Python, Seguridad...">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Filtrar por Área</label>
+                <select class="form-select" name="area_id">
+                    <option value="">Todas las áreas</option>
+                    {% for area in areas %}
+                    <option value="{{ area.id }}"
+                            {% if area_seleccionada == area.id %}selected{% endif %}>
+                        {{ area.nombre_area }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+                <a href="{{ url_for('empleado.listar_capacitaciones') }}"
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Limpiar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Lista de capacitaciones -->
+    {% if not capacitaciones %}
+    <div class="empty-state">
+        <i class="bi bi-book d-block"></i>
+        <h5>No se encontraron capacitaciones</h5>
+        <p class="text-muted">Intente con otros filtros de búsqueda.</p>
+    </div>
+    {% else %}
+    <div class="row g-4">
+        {% for cap in capacitaciones %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card-custom h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge-role" style="background:#dbeafe;color:#1d4ed8;">
+                            {{ cap.area.nombre_area }}
+                        </span>
+                        {% if progresos[cap.id] %}
+                            {% if progresos[cap.id].estado == 'Aprobado' %}
+                                <span class="badge-estado badge-aprobado">✓ Aprobado</span>
+                            {% else %}
+                                <span class="badge-estado badge-pendiente">Intentado</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <h6 class="fw-bold mt-2">{{ cap.titulo }}</h6>
+                    <p class="text-muted" style="font-size:0.85rem;">
+                        {{ cap.descripcion[:100] }}{% if cap.descripcion|length > 100 %}...{% endif %}
+                    </p>
+                    <p class="text-muted mb-3" style="font-size:0.8rem;">
+                        <i class="bi bi-question-circle"></i> {{ cap.preguntas | length }} preguntas
+                        &nbsp;|&nbsp;
+                        <i class="bi bi-person"></i> {{ cap.gestor.user.nombre_completo }}
+                    </p>
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('empleado.ver_material', capacitacion_id=cap.id) }}"
+                           class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="bi bi-eye"></i> Ver Material
+                        </a>
+                        {% if progresos[cap.id] and progresos[cap.id].estado == 'Aprobado' %}
+                            <button class="btn btn-sm btn-success flex-fill" disabled>
+                                <i class="bi bi-check-circle"></i> Completado
+                            </button>
+                        {% else %}
+                            <a href="{{ url_for('empleado.rendir_evaluacion', capacitacion_id=cap.id) }}"
+                               class="btn btn-sm btn-primary flex-fill">
+                                <i class="bi bi-pencil"></i> Evaluación
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

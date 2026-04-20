@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Gestor{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h4 class="mb-4">
+        <i class="bi bi-speedometer2"></i> Panel del Gestor
+        {% if gestor %}
+        <span class="badge-role" style="background:#dbeafe;color:#1d4ed8;margin-left:8px;">
+            {{ gestor.area.nombre_area }}
+        </span>
+        {% endif %}
+    </h4>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#dbeafe;color:#2563eb;">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ stats.mis_capacitaciones or 0 }}</div>
+                        <div class="stat-label">Mis Capacitaciones</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#dcfce7;color:#16a34a;">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ stats.mi_area or 'Sin área' }}</div>
+                        <div class="stat-label">Área Asignada</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                        <i class="bi bi-question-circle"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">
+                            {% if gestor %}
+                                {{ gestor.capacitaciones | selectattr('activa', 'equalto', true) | list | length }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                        <div class="stat-label">Capacitaciones Activas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card-custom">
+                <div class="card-header">
+                    <i class="bi bi-lightning"></i> Acciones Rápidas
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('gestor.crear_capacitacion') }}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Crear Nueva Capacitación
+                        </a>
+                        <a href="{{ url_for('gestor.mis_capacitaciones') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-book"></i> Ver Mis Capacitaciones
+                        </a>
+                        <a href="{{ url_for('documentos.subir') }}" class="btn btn-outline-info">
+                            <i class="bi bi-upload"></i> Subir Documento
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card-custom">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i> Información
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        <i class="bi bi-check-circle text-success"></i>
+                        Como Gestor del área <strong>{{ stats.mi_area or 'Sin área' }}</strong>,
+                        puede crear capacitaciones y cuestionarios exclusivamente para su área.
+                    </p>
+                    <p class="text-muted">
+                        <i class="bi bi-check-circle text-success"></i>
+                        Los empleados responderán sus cuestionarios y el sistema calificará
+                        automáticamente. Se requiere un mínimo del <strong>80%</strong> para aprobar.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

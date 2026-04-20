@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestor{% endblock %} - Sistema de Gestión</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    {% if current_user.is_authenticated %}
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">
+                <i class="bi bi-building"></i> GestorDoc
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('documentos.listar') }}">
+                            <i class="bi bi-folder2-open"></i> Documentos
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i>
+                            {{ current_user.nombre_completo }}
+                            <span class="badge-role"
+                                  style="background:#dbeafe;color:#1d4ed8;margin-left:4px;">
+                                {{ current_user.role | role_label }}
+                            </span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><span class="dropdown-item-text text-muted">
+                                <i class="bi bi-person"></i> {{ current_user.username }}
+                            </span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger"
+                                   href="{{ url_for('auth.logout') }}">
+                                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        {% if current_user.role == 'Admin' %}
+        <div class="sidebar-heading">Administración</div>
+        <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a href="{{ url_for('admin.listar_empleados') }}" class="nav-link">
+            <i class="bi bi-people"></i> Empleados
+        </a>
+        <a href="{{ url_for('admin.listar_gestores') }}" class="nav-link">
+            <i class="bi bi-person-badge"></i> Gestores
+        </a>
+        <a href="{{ url_for('rrhh.panel') }}" class="nav-link">
+            <i class="bi bi-people"></i> Panel RRHH
+        </a>
+        <a href="{{ url_for('documentos.listar') }}" class="nav-link">
+            <i class="bi bi-folder2-open"></i> Documentos
+        </a>
+        <a href="{{ url_for('documentos.subir') }}" class="nav-link">
+            <i class="bi bi-upload"></i> Subir Documento
+        </a>
+        <a href="{{ url_for('rrhh.reporte') }}" class="nav-link">
+            <i class="bi bi-graph-up"></i> Reportes
+        </a>
+
+        {% elif current_user.role == 'Gestor' %}
+        <div class="sidebar-heading">Gestión</div>
+        <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a href="{{ url_for('gestor.mis_capacitaciones') }}" class="nav-link">
+            <i class="bi bi-book"></i> Mis Capacitaciones
+        </a>
+        <a href="{{ url_for('gestor.crear_capacitacion') }}" class="nav-link">
+            <i class="bi bi-plus-circle"></i> Crear Capacitación
+        </a>
+        <a href="{{ url_for('documentos.listar') }}" class="nav-link">
+            <i class="bi bi-folder2-open"></i> Documentos
+        </a>
+        <a href="{{ url_for('documentos.subir') }}" class="nav-link">
+            <i class="bi bi-upload"></i> Subir Documento
+        </a>
+
+        {% elif current_user.role == 'Empleado' %}
+        <div class="sidebar-heading">Mi Aprendizaje</div>
+        <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a href="{{ url_for('empleado.listar_capacitaciones') }}" class="nav-link">
+            <i class="bi bi-search"></i> Buscar Capacitaciones
+        </a>
+        <a href="{{ url_for('empleado.mi_progreso') }}" class="nav-link">
+            <i class="bi bi-bar-chart-line"></i> Mi Progreso
+        </a>
+        <a href="{{ url_for('documentos.listar') }}" class="nav-link">
+            <i class="bi bi-folder2-open"></i> Documentos
+        </a>
+
+        {% elif current_user.role == 'RRHH' %}
+        <div class="sidebar-heading">Recursos Humanos</div>
+        <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a href="{{ url_for('rrhh.panel') }}" class="nav-link">
+            <i class="bi bi-people"></i> Panel de Control
+        </a>
+        <a href="{{ url_for('rrhh.reporte') }}" class="nav-link">
+            <i class="bi bi-graph-up"></i> Reportes
+        </a>
+        <a href="{{ url_for('documentos.listar') }}" class="nav-link">
+            <i class="bi bi-folder2-open"></i> Documentos
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    {% if current_user.is_authenticated %}
+    <div class="main-content">
+    {% endif %}
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="container mt-3">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+
+    {% if current_user.is_authenticated %}
+        <div class="footer">
+            © 2026 GestorDoc - Sistema de Gestión de Documentación y Capacitación
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

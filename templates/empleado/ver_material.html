@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Material - {{ capacitacion.titulo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>
+            <i class="bi bi-play-circle"></i> Material de Apoyo
+        </h4>
+        <a href="{{ url_for('empleado.listar_capacitaciones') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card-custom">
+                <div class="card-header">
+                    <span class="badge-role me-2" style="background:#dbeafe;color:#1d4ed8;">
+                        {{ capacitacion.area.nombre_area }}
+                    </span>
+                    {{ capacitacion.titulo }}
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-3">{{ capacitacion.titulo }}</h5>
+                    <p class="text-muted">{{ capacitacion.descripcion }}</p>
+
+                    {% if capacitacion.material_link %}
+                    <div class="mt-4 p-4 text-center" style="background:#f8fafc;border-radius:12px;">
+                        <i class="bi bi-link-45deg" style="font-size:2rem;color:var(--primary);"></i>
+                        <h6 class="mt-2">Material de Apoyo</h6>
+                        <p class="text-muted mb-3">Haga clic en el enlace para acceder al material.</p>
+                        <a href="{{ capacitacion.material_link }}" target="_blank"
+                           class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-up-right"></i> Abrir Material
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="mt-4 p-4 text-center" style="background:#f8fafc;border-radius:12px;">
+                        <i class="bi bi-x-circle" style="font-size:2rem;color:var(--gray);"></i>
+                        <h6 class="mt-2 text-muted">Sin material adjunto</h6>
+                        <p class="text-muted">El gestor aún no ha subido material de apoyo.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card-custom">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i> Información
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-borderless mb-0">
+                        <tr>
+                            <td class="text-muted">Área</td>
+                            <td class="fw-semibold">{{ capacitacion.area.nombre_area }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Gestor</td>
+                            <td class="fw-semibold">{{ capacitacion.gestor.user.nombre_completo }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Preguntas</td>
+                            <td class="fw-semibold">{{ capacitacion.preguntas | length }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Estado</td>
+                            <td>
+                                {% if progreso %}
+                                    {% if progreso.estado == 'Aprobado' %}
+                                        <span class="badge-estado badge-aprobado">✓ Aprobado ({{ progreso.calificacion }}%)</span>
+                                    {% else %}
+                                        <span class="badge-estado badge-pendiente">Pendiente ({{ progreso.calificacion }}%)</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">No iniciado</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+
+                    <hr>
+                    {% if not progreso or progreso.estado != 'Aprobado' %}
+                    <a href="{{ url_for('empleado.rendir_evaluacion', capacitacion_id=capacitacion.id) }}"
+                       class="btn btn-primary w-100">
+                        <i class="bi bi-pencil"></i>
+                        {% if progreso %} Reintentar Evaluación {% else %} Iniciar Evaluación {% endif %}
+                    </a>
+                    {% else %}
+                    <button class="btn btn-success w-100" disabled>
+                        <i class="bi bi-check-circle"></i> Ya Aprobado
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

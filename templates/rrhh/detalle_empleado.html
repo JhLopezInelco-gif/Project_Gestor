@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Detalle - {{ empleado.user.nombre_completo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4><i class="bi bi-person"></i> {{ empleado.user.nombre_completo }}</h4>
+        <a href="{{ url_for('rrhh.panel') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ total }}</div>
+                <div class="stat-label">Cursos Iniciados</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number text-success">{{ aprobados }}</div>
+                <div class="stat-label">Aprobados</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number text-warning">{{ pendientes }}</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number text-primary">{{ promedio }}%</div>
+                <div class="stat-label">Promedio</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-custom mb-4">
+        <div class="card-header">
+            <i class="bi bi-info-circle"></i> Datos del Empleado
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p class="text-muted mb-1">Usuario</p>
+                    <p class="fw-semibold">@{{ empleado.user.username }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="text-muted mb-1">Cargo</p>
+                    <p class="fw-semibold">{{ empleado.cargo }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p class="text-muted mb-1">Fecha de Ingreso</p>
+                    <p class="fw-semibold">
+                        {{ empleado.fecha_ingreso.strftime('%d/%m/%Y') if empleado.fecha_ingreso else 'N/A' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if progresos %}
+    <div class="card-custom">
+        <div class="card-header">
+            <i class="bi bi-table"></i> Progreso Detallado
+        </div>
+        <div class="card-body p-0">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Capacitación</th>
+                        <th>Área</th>
+                        <th>Calificación</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in progresos %}
+                    <tr>
+                        <td><strong>{{ p.capacitacion.titulo }}</strong></td>
+                        <td>
+                            <span class="badge-role" style="background:#dbeafe;color:#1d4ed8;">
+                                {{ p.capacitacion.area.nombre_area }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>{{ p.calificacion }}%</strong>
+                        </td>
+                        <td>
+                            {% if p.estado == 'Aprobado' %}
+                                <span class="badge-estado badge-aprobado">✓ Aprobado</span>
+                            {% else %}
+                                <span class="badge-estado badge-pendiente">Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ p.fecha_completado.strftime('%d/%m/%Y') if p.fecha_completado else 'N/A' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

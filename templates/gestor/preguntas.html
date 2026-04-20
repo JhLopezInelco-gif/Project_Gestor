@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Preguntas - {{ capacitacion.titulo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>
+            <i class="bi bi-question-circle"></i>
+            Preguntas: {{ capacitacion.titulo }}
+        </h4>
+        <a href="{{ url_for('gestor.mis_capacitaciones') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Formulario para nueva pregunta -->
+        <div class="col-md-5">
+            <div class="card-custom">
+                <div class="card-header">
+                    <i class="bi bi-plus-circle"></i> Agregar Pregunta
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Enunciado *</label>
+                            <textarea class="form-control" name="enunciado" rows="3"
+                                      required placeholder="Escriba la pregunta..."></textarea>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Opción A *</label>
+                            <input type="text" class="form-control" name="opcion_a" required
+                                   placeholder="Respuesta A">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Opción B *</label>
+                            <input type="text" class="form-control" name="opcion_b" required
+                                   placeholder="Respuesta B">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Opción C *</label>
+                            <input type="text" class="form-control" name="opcion_c" required
+                                   placeholder="Respuesta C">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Opción D *</label>
+                            <input type="text" class="form-control" name="opcion_d" required
+                                   placeholder="Respuesta D">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Respuesta Correcta *</label>
+                            <select class="form-select" name="respuesta_correcta" required>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-plus-circle"></i> Agregar Pregunta
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de preguntas existentes -->
+        <div class="col-md-7">
+            <div class="card-custom">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-list-ul"></i> Preguntas Actuales</span>
+                    <span class="badge bg-primary">{{ preguntas | length }}</span>
+                </div>
+                <div class="card-body">
+                    {% if not preguntas %}
+                    <div class="empty-state">
+                        <i class="bi bi-question-circle d-block"></i>
+                        <p>No hay preguntas aún. Agregue la primera.</p>
+                    </div>
+                    {% else %}
+                    {% for pregunta in preguntas %}
+                    <div class="pregunta-card">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <strong class="text-primary">Pregunta {{ loop.index }}</strong>
+                            <form method="POST"
+                                  action="{{ url_for('gestor.eliminar_pregunta', pregunta_id=pregunta.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('¿Eliminar esta pregunta?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <p class="mb-2">{{ pregunta.enunciado }}</p>
+                        <div class="row g-1" style="font-size: 0.85rem;">
+                            <div class="col-6">
+                                <span class="{% if pregunta.respuesta_correcta == 'A' %}text-success fw-bold{% endif %}">
+                                    A) {{ pregunta.opcion_a }}
+                                    {% if pregunta.respuesta_correcta == 'A' %} ✓{% endif %}
+                                </span>
+                            </div>
+                            <div class="col-6">
+                                <span class="{% if pregunta.respuesta_correcta == 'B' %}text-success fw-bold{% endif %}">
+                                    B) {{ pregunta.opcion_b }}
+                                    {% if pregunta.respuesta_correcta == 'B' %} ✓{% endif %}
+                                </span>
+                            </div>
+                            <div class="col-6">
+                                <span class="{% if pregunta.respuesta_correcta == 'C' %}text-success fw-bold{% endif %}">
+                                    C) {{ pregunta.opcion_c }}
+                                    {% if pregunta.respuesta_correcta == 'C' %} ✓{% endif %}
+                                </span>
+                            </div>
+                            <div class="col-6">
+                                <span class="{% if pregunta.respuesta_correcta == 'D' %}text-success fw-bold{% endif %}">
+                                    D) {{ pregunta.opcion_d }}
+                                    {% if pregunta.respuesta_correcta == 'D' %} ✓{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

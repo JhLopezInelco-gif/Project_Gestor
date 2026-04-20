@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Resultados - {{ capacitacion.titulo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>
+            <i class="bi bi-graph-up"></i> Resultados: {{ capacitacion.titulo }}
+        </h4>
+        <a href="{{ url_for('gestor.mis_capacitaciones') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    {% if not progresos %}
+    <div class="empty-state">
+        <i class="bi bi-people d-block"></i>
+        <h5>Sin resultados aún</h5>
+        <p class="text-muted">Ningún empleado ha completado esta capacitación.</p>
+    </div>
+    {% else %}
+    <div class="card-custom">
+        <div class="card-header">
+            <i class="bi bi-table"></i> Progreso de Empleados
+        </div>
+        <div class="card-body p-0">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Empleado</th>
+                        <th>Calificación</th>
+                        <th>Estado</th>
+                        <th>Fecha Completado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for progreso in progresos %}
+                    <tr>
+                        <td>
+                            <strong>{{ progreso.empleado.user.nombre_completo }}</strong>
+                            <br><small class="text-muted">{{ progreso.empleado.cargo }}</small>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress-custom" style="width: 100px;">
+                                    <div class="progress-bar
+                                        {% if progreso.calificacion >= 80 %}bg-success
+                                        {% else %}bg-warning{% endif %}"
+                                        style="width: {{ progreso.calificacion }}%"></div>
+                                </div>
+                                <strong>{{ progreso.calificacion }}%</strong>
+                            </div>
+                        </td>
+                        <td>
+                            {% if progreso.estado == 'Aprobado' %}
+                                <span class="badge-estado badge-aprobado">✓ Aprobado</span>
+                            {% else %}
+                                <span class="badge-estado badge-pendiente">Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ progreso.fecha_completado.strftime('%d/%m/%Y %H:%M')
+                               if progreso.fecha_completado else 'N/A' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

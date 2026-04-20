@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Resultado - {{ capacitacion.titulo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-custom">
+                <div class="card-body result-card">
+                    {% if estado == 'Aprobado' %}
+                    <i class="bi bi-trophy-fill" style="font-size:4rem;color:#f59e0b;"></i>
+                    <h3 class="mt-3">¡Felicidades!</h3>
+                    <div class="calificacion-grande aprobado">{{ calificacion }}%</div>
+                    <p class="text-muted fs-5">
+                        Ha aprobado la evaluación <strong>{{ capacitacion.titulo }}</strong>
+                    </p>
+                    {% else %}
+                    <i class="bi bi-x-circle-fill" style="font-size:4rem;color:#dc2626;"></i>
+                    <h3 class="mt-3">No Aprobado</h3>
+                    <div class="calificacion-grande reprobado">{{ calificacion }}%</div>
+                    <p class="text-muted fs-5">
+                        No alcanzó el 80% requerido. ¡Puede intentar nuevamente!
+                    </p>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <div class="text-center">
+                            <div class="fs-2 fw-bold text-success">{{ correctas }}</div>
+                            <div class="text-muted">Correctas</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="fs-2 fw-bold text-danger">{{ total - correctas }}</div>
+                            <div class="text-muted">Incorrectas</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="fs-2 fw-bold text-primary">{{ total }}</div>
+                            <div class="text-muted">Total</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <span class="badge-estado {% if estado == 'Aprobado' %}badge-aprobado{% else %}badge-pendiente{% endif %}"
+                              style="font-size:1rem;padding:0.5rem 1.5rem;">
+                            {{ estado }}
+                        </span>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h6 class="mb-3">Detalle de Respuestas</h6>
+                    {% for pregunta in preguntas %}
+                    <div class="text-start mb-2 p-2 rounded
+                        {% if respuestas_dadas.get(pregunta.id|string, '') == pregunta.respuesta_correcta %}
+                            bg-success bg-opacity-10
+                        {% else %}
+                            bg-danger bg-opacity-10
+                        {% endif %}">
+                        <strong>{{ loop.index }}.</strong> {{ pregunta.enunciado }}
+                        <br>
+                        <small>
+                            Tu respuesta:
+                            <strong>{{ respuestas_dadas.get(pregunta.id|string, 'Sin respuesta') }}</strong>
+                            | Correcta:
+                            <strong class="text-success">{{ pregunta.respuesta_correcta }}</strong>
+                        </small>
+                    </div>
+                    {% endfor %}
+
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <a href="{{ url_for('empleado.listar_capacitaciones') }}"
+                           class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left"></i> Volver a Capacitaciones
+                        </a>
+                        {% if estado != 'Aprobado' %}
+                        <a href="{{ url_for('empleado.rendir_evaluacion', capacitacion_id=capacitacion.id) }}"
+                           class="btn btn-primary">
+                            <i class="bi bi-arrow-repeat"></i> Reintentar
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

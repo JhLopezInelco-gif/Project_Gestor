@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="text-center mb-4">
+            <i class="bi bi-building" style="font-size: 3rem; color: var(--primary);"></i>
+            <h2 class="mt-2">GestorDoc</h2>
+            <p class="text-muted">Sistema de Gestión de Documentación y Capacitación</p>
+        </div>
+
+        <form method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label fw-semibold">
+                    <i class="bi bi-person"></i> Usuario
+                </label>
+                <input type="text" class="form-control" id="username" name="username"
+                       placeholder="Ingrese su usuario" required autofocus>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label fw-semibold">
+                    <i class="bi bi-lock"></i> Contraseña
+                </label>
+                <input type="password" class="form-control" id="password" name="password"
+                       placeholder="Ingrese su contraseña" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary-custom w-100 py-2">
+                <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+            </button>
+        </form>
+
+        <hr class="my-4">
+        <div class="text-center text-muted" style="font-size: 0.8rem;">
+            <p class="mb-1"><strong>Credenciales de prueba:</strong></p>
+            <div class="row g-1 text-start" style="font-size: 0.75rem;">
+                <div class="col-6">
+                    <span class="d-block">👤 admin / admin123</span>
+                    <span class="d-block">👔 gestor.ti / gestor123</span>
+                </div>
+                <div class="col-6">
+                    <span class="d-block">👷 emp1 / empleado123</span>
+                    <span class="d-block">📊 rrhh / rrhh123</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

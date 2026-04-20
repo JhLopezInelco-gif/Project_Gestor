@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h4 class="mb-4">
+        <i class="bi bi-speedometer2"></i> Panel de Administración
+    </h4>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#dbeafe;color:#2563eb;">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ stats.total_usuarios or 0 }}</div>
+                        <div class="stat-label">Usuarios Totales</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#dcfce7;color:#16a34a;">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ stats.total_capacitaciones or 0 }}</div>
+                        <div class="stat-label">Capacitaciones Activas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ stats.total_empleados or 0 }}</div>
+                        <div class="stat-label">Empleados</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#f3e8ff;color:#7c3aed;">
+                        <i class="bi bi-folder2-open"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ stats.total_documentos or 0 }}</div>
+                        <div class="stat-label">Documentos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card-custom">
+                <div class="card-header">
+                    <i class="bi bi-lightning"></i> Acciones Rápidas
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('admin.listar_empleados') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-people"></i> Gestionar Empleados
+                        </a>
+                        <a href="{{ url_for('admin.listar_gestores') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-person-badge"></i> Gestionar Gestores
+                        </a>
+                        <a href="{{ url_for('rrhh.panel') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-people"></i> Ver Panel RRHH
+                        </a>
+                        <a href="{{ url_for('rrhh.reporte') }}" class="btn btn-outline-success">
+                            <i class="bi bi-graph-up"></i> Ver Reportes
+                        </a>
+                        <a href="{{ url_for('documentos.subir') }}" class="btn btn-outline-info">
+                            <i class="bi bi-upload"></i> Subir Documento
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card-custom">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i> Información del Sistema
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-borderless mb-0">
+                        <tr>
+                            <td class="text-muted">Sistema</td>
+                            <td class="fw-semibold">GestorDoc v1.0</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Base de Datos</td>
+                            <td class="fw-semibold">SQLite</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Framework</td>
+                            <td class="fw-semibold">Flask + SQLAlchemy</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Roles Disponibles</td>
+                            <td>
+                                <span class="badge-role" style="background:#fee2e2;color:#991b1b;">Admin</span>
+                                <span class="badge-role" style="background:#dbeafe;color:#1d4ed8;">Gestor</span>
+                                <span class="badge-role" style="background:#dcfce7;color:#166534;">Empleado</span>
+                                <span class="badge-role" style="background:#cffafe;color:#155e75;">RRHH</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

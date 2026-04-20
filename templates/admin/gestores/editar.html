@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Editar Gestor{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4><i class="bi bi-pencil"></i> Editar Gestor</h4>
+        <a href="{{ url_for('admin.listar_gestores') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="card-custom">
+        <div class="card-header">
+            <i class="bi bi-person-badge"></i> Editando: {{ gestor.user.nombre_completo }}
+            <span class="badge bg-info text-dark ms-2">
+                <i class="bi bi-building"></i> {{ gestor.area.nombre_area }}
+            </span>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombres <span class="text-danger">*</span></label>
+                        <input type="text" name="nombres" class="form-control" required
+                               value="{{ gestor.user.nombres }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Apellidos <span class="text-danger">*</span></label>
+                        <input type="text" name="apellidos" class="form-control" required
+                               value="{{ gestor.user.apellidos }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre de Usuario <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-at"></i></span>
+                            <input type="text" name="username" class="form-control" required
+                                   value="{{ gestor.user.username }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Área Asignada <span class="text-danger">*</span></label>
+                        <select name="area_id" class="form-select" required>
+                            <option value="">-- Seleccionar Área --</option>
+                            {% for area in areas %}
+                            <option value="{{ area.id }}" {% if area.id == gestor.area_id %}selected{% endif %}>
+                                {{ area.nombre_area }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Cargo</label>
+                        <input type="text" name="cargo" class="form-control"
+                               value="{{ gestor.cargo }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nueva Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="new_password" class="form-control"
+                                   placeholder="Dejar vacío para no cambiar" minlength="6">
+                        </div>
+                        <small class="text-muted">Dejar vacío si no desea cambiar la contraseña.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Estado</label>
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input" type="checkbox" name="activo"
+                                   id="activo" {% if gestor.user.activo %}checked{% endif %}>
+                            <label class="form-check-label" for="activo">
+                                {% if gestor.user.activo %}
+                                <span class="text-success">Activo</span>
+                                {% else %}
+                                <span class="text-secondary">Inactivo</span>
+                                {% endif %}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Atención:</strong> Si cambia el área asignada, las capacitaciones ya creadas permanecerán
+                    en el área original pero el gestor solo podrá crear nuevas capacitaciones en el área seleccionada.
+                </div>
+
+                <hr class="my-4">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-check-circle"></i> Guardar Cambios
+                    </button>
+                    <a href="{{ url_for('admin.listar_gestores') }}" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

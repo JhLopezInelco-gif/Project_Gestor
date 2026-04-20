@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Mis Capacitaciones{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4><i class="bi bi-book"></i> Mis Capacitaciones</h4>
+        <a href="{{ url_for('gestor.crear_capacitacion') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nueva Capacitación
+        </a>
+    </div>
+
+    {% if not capacitaciones %}
+    <div class="empty-state">
+        <i class="bi bi-book d-block"></i>
+        <h5>No hay capacitaciones creadas</h5>
+        <p class="text-muted">Cree su primera capacitación para su área.</p>
+        <a href="{{ url_for('gestor.crear_capacitacion') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Crear Capacitación
+        </a>
+    </div>
+    {% else %}
+    <div class="card-custom">
+        <div class="card-body p-0">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Área</th>
+                        <th>Preguntas</th>
+                        <th>Material</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cap in capacitaciones %}
+                    <tr>
+                        <td>
+                            <strong>{{ cap.titulo }}</strong>
+                            <br><small class="text-muted">{{ cap.descripcion[:60] }}...</small>
+                        </td>
+                        <td>
+                            <span class="badge-role" style="background:#dbeafe;color:#1d4ed8;">
+                                {{ cap.area.nombre_area }}
+                            </span>
+                        </td>
+                        <td>{{ cap.preguntas | length }}</td>
+                        <td>
+                            {% if cap.material_link %}
+                                <a href="{{ cap.material_link }}" target="_blank"
+                                   class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-link-45deg"></i> Ver
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Sin material</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if cap.activa %}
+                                <span class="badge-estado badge-aprobado">Activa</span>
+                            {% else %}
+                                <span class="badge-estado badge-pendiente">Inactiva</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ cap.fecha_creacion.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('gestor.editar_capacitacion', capacitacion_id=cap.id) }}"
+                                   class="btn btn-outline-secondary" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{{ url_for('gestor.agregar_preguntas', capacitacion_id=cap.id) }}"
+                                   class="btn btn-outline-primary" title="Preguntas">
+                                    <i class="bi bi-question-circle"></i>
+                                </a>
+                                <a href="{{ url_for('gestor.ver_resultados', capacitacion_id=cap.id) }}"
+                                   class="btn btn-outline-success" title="Resultados">
+                                    <i class="bi bi-graph-up"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

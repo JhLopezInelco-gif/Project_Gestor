@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Reportes por Área{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h4 class="mb-4"><i class="bi bi-graph-up"></i> Reportes por Área</h4>
+
+    <div class="row g-4">
+        {% for area_data in reporte %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card-custom h-100">
+                <div class="card-header">
+                    <i class="bi bi-building"></i> {{ area_data.nombre_area }}
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 mb-3">
+                        <div class="col-6 text-center">
+                            <div class="fs-4 fw-bold text-primary">{{ area_data.total_capacitaciones }}</div>
+                            <div class="text-muted" style="font-size:0.8rem;">Capacitaciones</div>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div class="fs-4 fw-bold text-info">{{ area_data.total_intentos }}</div>
+                            <div class="text-muted" style="font-size:0.8rem;">Intentos</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Aprobados</span>
+                        <span class="fw-bold text-success">{{ area_data.aprobados }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Pendientes</span>
+                        <span class="fw-bold text-warning">{{ area_data.pendientes }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Tasa de Aprobación</span>
+                        <span class="fw-bold text-primary">{{ area_data.tasa }}%</span>
+                    </div>
+
+                    <div class="progress-custom">
+                        <div class="progress-bar bg-success"
+                             style="width: {{ area_data.tasa }}%"></div>
+                    </div>
+
+                    {% if area_data.capacitaciones %}
+                    <hr>
+                    <h6 class="text-muted mb-2" style="font-size:0.8rem;">Capacitaciones:</h6>
+                    {% for cap in area_data.capacitaciones %}
+                    <div class="d-flex justify-content-between align-items-center mb-1"
+                         style="font-size:0.85rem;">
+                        <span>{{ cap.titulo }}</span>
+                        <small class="text-muted">{{ cap.intentos }} intentos</small>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not reporte %}
+    <div class="empty-state">
+        <i class="bi bi-graph-up d-block"></i>
+        <h5>Sin datos</h5>
+        <p class="text-muted">No hay datos de capacitaciones para generar reportes.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

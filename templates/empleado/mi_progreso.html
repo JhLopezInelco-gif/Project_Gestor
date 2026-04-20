@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Mi Progreso{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h4 class="mb-4"><i class="bi bi-bar-chart-line"></i> Mi Progreso</h4>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#dbeafe;color:#2563eb;">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ total }}</div>
+                        <div class="stat-label">Cursos Iniciados</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#dcfce7;color:#16a34a;">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ aprobados }}</div>
+                        <div class="stat-label">Aprobados</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background:#fef3c7;color:#d97706;">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                    <div>
+                        <div class="stat-number">{{ pendientes }}</div>
+                        <div class="stat-label">Pendientes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if not progresos %}
+    <div class="empty-state">
+        <i class="bi bi-bar-chart-line d-block"></i>
+        <h5>Sin registros aún</h5>
+        <p class="text-muted">Aún no ha iniciado ninguna capacitación.</p>
+        <a href="{{ url_for('empleado.listar_capacitaciones') }}" class="btn btn-primary">
+            <i class="bi bi-search"></i> Buscar Capacitaciones
+        </a>
+    </div>
+    {% else %}
+    <div class="card-custom">
+        <div class="card-body p-0">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Capacitación</th>
+                        <th>Área</th>
+                        <th>Calificación</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for progreso in progresos %}
+                    <tr>
+                        <td><strong>{{ progreso.capacitacion.titulo }}</strong></td>
+                        <td>
+                            <span class="badge-role" style="background:#dbeafe;color:#1d4ed8;">
+                                {{ progreso.capacitacion.area.nombre_area }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress-custom" style="width:80px;">
+                                    <div class="progress-bar
+                                        {% if progreso.calificacion >= 80 %}bg-success
+                                        {% else %}bg-warning{% endif %}"
+                                        style="width: {{ progreso.calificacion }}%"></div>
+                                </div>
+                                <strong>{{ progreso.calificacion }}%</strong>
+                            </div>
+                        </td>
+                        <td>
+                            {% if progreso.estado == 'Aprobado' %}
+                                <span class="badge-estado badge-aprobado">✓ Aprobado</span>
+                            {% else %}
+                                <span class="badge-estado badge-pendiente">Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ progreso.fecha_completado.strftime('%d/%m/%Y') if progreso.fecha_completado else 'N/A' }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

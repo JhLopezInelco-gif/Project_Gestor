@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Crear Empleado{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4><i class="bi bi-person-plus"></i> Nuevo Empleado</h4>
+        <a href="{{ url_for('admin.listar_empleados') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="card-custom">
+        <div class="card-header">
+            <i class="bi bi-person-plus"></i> Registrar Nuevo Empleado
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombres <span class="text-danger">*</span></label>
+                        <input type="text" name="nombres" class="form-control" required
+                               placeholder="Ingrese los nombres">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Apellidos <span class="text-danger">*</span></label>
+                        <input type="text" name="apellidos" class="form-control" required
+                               placeholder="Ingrese los apellidos">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre de Usuario <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-at"></i></span>
+                            <input type="text" name="username" class="form-control" required
+                                   placeholder="usuario.login">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Contraseña <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="password" class="form-control" required
+                                   placeholder="Mínimo 6 caracteres" minlength="6">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Cargo <span class="text-danger">*</span></label>
+                        <input type="text" name="cargo" class="form-control" required
+                               placeholder="Ej: Analista, Auxiliar, etc.">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha de Ingreso</label>
+                        <input type="date" name="fecha_ingreso" class="form-control">
+                    </div>
+                </div>
+
+                <hr class="my-4">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Crear Empleado
+                    </button>
+                    <a href="{{ url_for('admin.listar_empleados') }}" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Editar Capacitación{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4><i class="bi bi-pencil"></i> Editar Capacitación</h4>
+        <a href="{{ url_for('gestor.mis_capacitaciones') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-custom">
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label fw-semibold">Título *</label>
+                            <input type="text" class="form-control" id="titulo"
+                                   name="titulo" required value="{{ capacitacion.titulo }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label fw-semibold">Descripción</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion"
+                                      rows="3">{{ capacitacion.descripcion }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="material_link" class="form-label fw-semibold">
+                                Material de Apoyo (Link)
+                            </label>
+                            <input type="url" class="form-control" id="material_link"
+                                   name="material_link" value="{{ capacitacion.material_link }}">
+                        </div>
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       id="activa" name="activa"
+                                       {% if capacitacion.activa %}checked{% endif %}>
+                                <label class="form-check-label fw-semibold" for="activa">
+                                    Capacitación Activa
+                                </label>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Guardar Cambios
+                            </button>
+                            <a href="{{ url_for('gestor.mis_capacitaciones') }}"
+                               class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

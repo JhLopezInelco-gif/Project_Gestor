@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Panel de Control RRHH{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h4 class="mb-4"><i class="bi bi-people"></i> Panel de Control - RRHH</h4>
+
+    <!-- Estadísticas generales -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_empleados }}</div>
+                <div class="stat-label">Empleados</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_capacitaciones }}</div>
+                <div class="stat-label">Capacitaciones</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_progresos }}</div>
+                <div class="stat-label">Intentos</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-number text-success">{{ stats.total_aprobados }}</div>
+                <div class="stat-label">Aprobados</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-number text-warning">{{ stats.total_pendientes }}</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="stat-number text-primary">{{ stats.tasa_aprobacion }}%</div>
+                <div class="stat-label">Tasa Aprobación</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="search-bar">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Filtrar por Área</label>
+                <select class="form-select" name="area_id">
+                    <option value="">Todas</option>
+                    {% for area in areas %}
+                    <option value="{{ area.id }}"
+                            {% if area_seleccionada == area.id %}selected{% endif %}>
+                        {{ area.nombre_area }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold">Filtrar por Estado</label>
+                <select class="form-select" name="estado">
+                    <option value="">Todos</option>
+                    <option value="Aprobado" {% if estado_filtro == 'Aprobado' %}selected{% endif %}>Aprobado</option>
+                    <option value="Pendiente" {% if estado_filtro == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-funnel"></i> Filtrar
+                </button>
+                <a href="{{ url_for('rrhh.panel') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Limpiar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de empleados -->
+    <div class="card-custom">
+        <div class="card-header">
+            <i class="bi bi-table"></i> Progreso de Empleados
+        </div>
+        <div class="card-body p-0">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Empleado</th>
+                        <th>Cargo</th>
+                        <th>Cursos</th>
+                        <th>Aprobados</th>
+                        <th>Pendientes</th>
+                        <th>Promedio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in tabla_empleados %}
+                    <tr>
+                        <td>
+                            <strong>{{ emp.nombre }}</strong>
+                            <br><small class="text-muted">@{{ emp.username }}</small>
+                        </td>
+                        <td>{{ emp.cargo }}</td>
+                        <td class="text-center">{{ emp.total_cursos }}</td>
+                        <td class="text-center">
+                            <span class="text-success fw-bold">{{ emp.aprobados }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="text-warning fw-bold">{{ emp.pendientes }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress-custom" style="width:60px;">
+                                    <div class="progress-bar
+                                        {% if emp.promedio >= 80 %}bg-success
+                                        {% elif emp.promedio >= 50 %}bg-warning
+                                        {% else %}bg-danger{% endif %}"
+                                        style="width: {{ emp.promedio }}%"></div>
+                                </div>
+                                {{ emp.promedio }}%
+                            </div>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('rrhh.detalle_empleado', empleado_id=emp.empleado_id) }}"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> Ver
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

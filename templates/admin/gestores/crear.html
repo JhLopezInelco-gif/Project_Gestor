@@ -54,9 +54,19 @@
                         <small class="text-muted">El gestor podrá crear capacitaciones y subir material a esta área.</small>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Cargo</label>
-                        <input type="text" name="cargo" class="form-control"
-                               value="Gestor" placeholder="Ej: Gestor de Calidad, etc.">
+                        <label class="form-label">Cargo <span class="text-danger">*</span></label>
+                        <select name="cargo" class="form-select" required>
+                            <option value="">-- Seleccionar Cargo --</option>
+                            <option value="Analista TIC">Analista TIC</option>
+                            <option value="Jefe de Compras">Jefe de Compras</option>
+                            <option value="Jefe de Bodega">Jefe de Bodega</option>
+                            <option value="Director de Gestión Humana">Director de Gestión Humana</option>
+                            <option value="Director Financiero">Director Financiero</option>
+                            <option value="Coordinadora Administración Financiera">Coordinadora Administración Financiera</option>
+                            <option value="Coordinadora Agencia Bogotá">Coordinadora Agencia Bogotá</option>
+                            <option value="Coordinadora de SGI">Coordinadora de SGI</option>
+                            <option value="Gerencia">Gerencia</option>
+                        </select>
                     </div>
                 </div>
 

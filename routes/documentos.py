@@ -3,6 +3,7 @@
 Rutas del Módulo de Documentación
 - Repositorio centralizado para consulta de archivos según permisos
 - Subir, descargar y listar documentos
+- Visibilidad: Público (todos) o Privado (Admin, Gestor, RRHH)
 """
 
 import os
@@ -31,8 +32,18 @@ def allowed_file(filename):
 def listar():
     area_id = request.args.get('area_id', type=int)
     buscar = request.args.get('buscar', '').strip()
+    vis_filtro = request.args.get('visibilidad', '').strip()
 
     query = Documento.query
+
+    # Filtrar por visibilidad según rol
+    # Empleados solo ven documentos públicos
+    if current_user.role == 'Empleado':
+        query = query.filter_by(visibilidad='publico')
+
+    # Filtro por visibilidad seleccionado (solo para roles que pueden ver privados)
+    if vis_filtro and current_user.role in ('Admin', 'Gestor', 'RRHH'):
+        query = query.filter_by(visibilidad=vis_filtro)
 
     if area_id:
         query = query.filter_by(area_id=area_id)
@@ -46,16 +57,17 @@ def listar():
                            documentos=documentos,
                            areas=areas,
                            area_seleccionada=area_id,
-                           buscar=buscar)
+                           buscar=buscar,
+                           vis_filtro=vis_filtro)
 
 
 # ──────────────────────────────────────────────
-#  SUBIR DOCUMENTO (Admin y Gestor)
+#  SUBIR DOCUMENTO (Admin, Gestor y RRHH)
 # ──────────────────────────────────────────────
 @documentos_bp.route('/documentos/subir', methods=['GET', 'POST'])
 @login_required
 def subir():
-    if current_user.role not in ('Admin', 'Gestor'):
+    if current_user.role not in ('Admin', 'Gestor', 'RRHH'):
         flash('Acceso no autorizado para subir documentos.', 'danger')
         return redirect(url_for('documentos.listar'))
 
@@ -65,6 +77,7 @@ def subir():
         titulo = request.form.get('titulo', '').strip()
         area_id = request.form.get('area_id', type=int)
         descripcion = request.form.get('descripcion', '').strip()
+        visibilidad = request.form.get('visibilidad', 'publico').strip()
         archivo = request.files.get('archivo')
 
         if not titulo or not area_id:
@@ -102,7 +115,8 @@ def subir():
             archivo_path=filename,
             area_id=area_id,
             subido_por=current_user.id,
-            descripcion=descripcion
+            descripcion=descripcion,
+            visibilidad=visibilidad
         )
         db.session.add(doc)
         db.session.commit()
@@ -114,15 +128,58 @@ def subir():
 
 
 # ──────────────────────────────────────────────
-#  DESCARGAR DOCUMENTO
+#  PREVISUALIZAR DOCUMENTO (todos pueden ver)
+# ──────────────────────────────────────────────
+@documentos_bp.route('/documentos/<int:doc_id>/preview')
+@login_required
+def previsualizar(doc_id):
+    doc = Documento.query.get_or_404(doc_id)
+
+    # Empleados no pueden ver documentos privados
+    if current_user.role == 'Empleado' and doc.visibilidad == 'privado':
+        flash('No tiene permiso para ver este documento.', 'danger')
+        return redirect(url_for('documentos.listar'))
+
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+    return send_from_directory(upload_folder, doc.archivo_path,
+                               as_attachment=False)
+
+
+# ──────────────────────────────────────────────
+#  DESCARGAR DOCUMENTO (solo Admin, Gestor, RRHH)
 # ──────────────────────────────────────────────
 @documentos_bp.route('/documentos/<int:doc_id>/descargar')
 @login_required
 def descargar(doc_id):
     doc = Documento.query.get_or_404(doc_id)
+
+    # Empleados NO pueden descargar documentos
+    if current_user.role == 'Empleado':
+        flash('Los empleados no tienen permiso para descargar documentos.', 'danger')
+        return redirect(url_for('documentos.listar'))
+
     upload_folder = current_app.config['UPLOAD_FOLDER']
     return send_from_directory(upload_folder, doc.archivo_path,
                                as_attachment=True)
+
+
+# ──────────────────────────────────────────────
+#  CAMBIAR VISIBILIDAD (Admin y RRHH)
+# ──────────────────────────────────────────────
+@documentos_bp.route('/documentos/<int:doc_id>/visibilidad', methods=['POST'])
+@login_required
+def cambiar_visibilidad(doc_id):
+    if current_user.role not in ('Admin', 'RRHH'):
+        flash('No tiene permiso para cambiar la visibilidad.', 'danger')
+        return redirect(url_for('documentos.listar'))
+
+    doc = Documento.query.get_or_404(doc_id)
+    nueva_vis = 'privado' if doc.visibilidad == 'publico' else 'publico'
+    doc.visibilidad = nueva_vis
+    db.session.commit()
+
+    flash(f'Visibilidad del documento "{doc.titulo}" cambiada a {nueva_vis}.', 'success')
+    return redirect(url_for('documentos.listar'))
 
 
 # ──────────────────────────────────────────────

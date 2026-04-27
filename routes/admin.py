@@ -175,10 +175,10 @@ def crear_gestor():
         nombres = request.form.get('nombres', '').strip()
         apellidos = request.form.get('apellidos', '').strip()
         area_id = request.form.get('area_id', type=int)
-        cargo = request.form.get('cargo', 'Gestor').strip()
+        cargo = request.form.get('cargo', '').strip()
 
         # Validaciones
-        if not all([username, password, nombres, apellidos, area_id]):
+        if not all([username, password, nombres, apellidos, area_id, cargo]):
             flash('Todos los campos marcados con * son obligatorios.', 'warning')
             return render_template('admin/gestores/crear.html', areas=areas)
 

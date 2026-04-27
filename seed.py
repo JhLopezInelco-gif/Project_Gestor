@@ -18,13 +18,15 @@ def seed_areas():
     """Crear áreas de la empresa"""
     areas = [
         'Tecnología',
+        'Bodega',
         'Recursos Humanos',
         'Finanzas',
-        'Marketing',
+        'Contabilidad',
+        'Diseño',
         'Operaciones',
-        'Ventas',
-        'Legal',
-        'Calidad',
+        'Compras',
+        'Sistema Gestion I',
+        'Tecnología',
     ]
     for nombre in areas:
         existe = Area.query.filter_by(nombre_area=nombre).first()
@@ -86,7 +88,7 @@ def seed_gestores():
             'password': 'gestor123',
             'nombres': 'Laura',
             'apellidos': 'Martínez',
-            'area': 'Marketing',
+            'area': 'Compras',
             'cargo': 'Gerente de Marketing'
         },
     ]

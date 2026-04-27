@@ -45,6 +45,18 @@
                         </div>
                         {% endif %}
 
+                        <div class="mb-3">
+                            <label for="visibilidad" class="form-label fw-semibold">Visibilidad *</label>
+                            <select class="form-select" id="visibilidad" name="visibilidad" required>
+                                <option value="publico">🌐 Público - Todos pueden verlo</option>
+                                <option value="privado">🔒 Privado - Solo Admin, Gestor y RRHH</option>
+                            </select>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i>
+                                Público: todos los usuarios pueden ver el documento. Privado: solo Admin, Gestor y RRHH.
+                            </small>
+                        </div>
+
                         <div class="mb-4">
                             <label for="archivo" class="form-label fw-semibold">
                                 Archivo *

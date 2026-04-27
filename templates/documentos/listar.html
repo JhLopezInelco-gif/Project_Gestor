@@ -5,7 +5,7 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4><i class="bi bi-folder2-open"></i> Repositorio de Documentos</h4>
-        {% if current_user.role in ['Admin', 'Gestor'] %}
+        {% if current_user.role in ['Admin', 'Gestor', 'RRHH'] %}
         <a href="{{ url_for('documentos.subir') }}" class="btn btn-primary">
             <i class="bi bi-upload"></i> Subir Documento
         </a>
@@ -15,13 +15,13 @@
     <!-- Filtros -->
     <div class="search-bar">
         <form method="GET" class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label fw-semibold">Buscar</label>
+            <div class="col-md-3">
+                <label class="form-label">Buscar</label>
                 <input type="text" class="form-control" name="buscar"
                        value="{{ buscar }}" placeholder="Buscar por título...">
             </div>
-            <div class="col-md-4">
-                <label class="form-label fw-semibold">Área</label>
+            <div class="col-md-3">
+                <label class="form-label">Área</label>
                 <select class="form-select" name="area_id">
                     <option value="">Todas</option>
                     {% for area in areas %}
@@ -32,7 +32,17 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-4">
+            {% if current_user.role in ['Admin', 'Gestor', 'RRHH'] %}
+            <div class="col-md-3">
+                <label class="form-label">Visibilidad</label>
+                <select class="form-select" name="visibilidad">
+                    <option value="">Todas</option>
+                    <option value="publico" {% if vis_filtro == 'publico' %}selected{% endif %}>Público</option>
+                    <option value="privado" {% if vis_filtro == 'privado' %}selected{% endif %}>Privado</option>
+                </select>
+            </div>
+            {% endif %}
+            <div class="col-md-3">
                 <button type="submit" class="btn btn-primary me-2">
                     <i class="bi bi-search"></i> Buscar
                 </button>
@@ -57,7 +67,7 @@
                     <tr>
                         <th>Título</th>
                         <th>Área</th>
-                        <th>Archivo</th>
+                        <th>Visibilidad</th>
                         <th>Fecha Subida</th>
                         <th>Acciones</th>
                     </tr>
@@ -68,19 +78,68 @@
                         <td>
                             <i class="bi bi-file-earmark-text text-primary me-2"></i>
                             <strong>{{ doc.titulo }}</strong>
+                            {% if doc.descripcion %}
+                            <br><small class="text-muted">{{ doc.descripcion }}</small>
+                            {% endif %}
                         </td>
                         <td>
                             <span class="badge-role" style="background:#dbeafe;color:#1d4ed8;">
                                 {{ doc.area.nombre_area }}
                             </span>
                         </td>
-                        <td class="text-muted">{{ doc.archivo_path }}</td>
+                        <td>
+                            {% if doc.visibilidad == 'publico' %}
+                            <span class="badge-estado badge-aprobado">
+                                <i class="bi bi-globe"></i> Público
+                            </span>
+                            {% else %}
+                            <span class="badge-estado" style="background:#fef3c7;color:#92400e;">
+                                <i class="bi bi-lock"></i> Privado
+                            </span>
+                            {% endif %}
+                        </td>
                         <td>{{ doc.fecha_subida.strftime('%d/%m/%Y') }}</td>
                         <td>
-                            <a href="{{ url_for('documentos.descargar', documento_id=doc.id) }}"
-                               class="btn btn-sm btn-outline-primary">
+                            <!-- Botón Previsualizar - Todos pueden ver -->
+                            <button type="button" class="btn btn-sm btn-outline-primary me-1 btn-preview"
+                                    data-id="{{ doc.id }}"
+                                    data-titulo="{{ doc.titulo | e }}"
+                                    data-ext="{{ doc.archivo_path.split('.')[-1] | lower }}">
+                                <i class="bi bi-eye"></i> Ver
+                            </button>
+
+                            <!-- Botón Descargar - Solo Admin, Gestor, RRHH -->
+                            {% if current_user.role in ['Admin', 'Gestor', 'RRHH'] %}
+                            <a href="{{ url_for('documentos.descargar', doc_id=doc.id) }}"
+                               class="btn btn-sm btn-outline-success me-1">
                                 <i class="bi bi-download"></i> Descargar
                             </a>
+                            {% endif %}
+
+                            {% if current_user.role in ['Admin', 'RRHH'] %}
+                            <form method="POST" action="{{ url_for('documentos.cambiar_visibilidad', doc_id=doc.id) }}"
+                                  style="display:inline;">
+                                {% if doc.visibilidad == 'publico' %}
+                                <button type="submit" class="btn btn-sm btn-outline-warning"
+                                        title="Cambiar a Privado">
+                                    <i class="bi bi-lock"></i>
+                                </button>
+                                {% else %}
+                                <button type="submit" class="btn btn-sm btn-outline-success"
+                                        title="Cambiar a Público">
+                                    <i class="bi bi-globe"></i>
+                                </button>
+                                {% endif %}
+                            </form>
+                            <form method="POST" action="{{ url_for('documentos.eliminar', doc_id=doc.id) }}"
+                                  style="display:inline;"
+                                  onsubmit="return confirm('¿Eliminar este documento?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -90,4 +149,81 @@
     </div>
     {% endif %}
 </div>
+
+<!-- Modal de Previsualización -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="border-radius:14px; overflow:hidden;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff;">
+                <h5 class="modal-title">
+                    <i class="bi bi-eye"></i> <span id="previewTitle">Documento</span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-0" style="height:80vh; background:#1e293b;">
+                <iframe id="previewFrame" src="" style="width:100%;height:100%;border:none;"></iframe>
+                <div id="previewImageWrap" style="display:none;width:100%;height:100%;overflow:auto;text-align:center;background:#f8fafc;">
+                    <img id="previewImage" src="" style="max-width:100%;max-height:100%;object-fit:contain;">
+                </div>
+                <div id="previewUnsupported" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;flex-direction:column;color:#94a3b8;">
+                    <i class="bi bi-file-earmark-x" style="font-size:4rem;opacity:0.4;"></i>
+                    <p class="mt-3 fs-5">Este tipo de archivo no se puede previsualizar.</p>
+                    <p>Descárguelo para ver el contenido.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Event delegation for preview buttons
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('.btn-preview');
+        if (!btn) return;
+
+        var docId = btn.getAttribute('data-id');
+        var titulo = btn.getAttribute('data-titulo');
+        var extension = btn.getAttribute('data-ext');
+
+        document.getElementById('previewTitle').textContent = titulo;
+
+        var previewFrame = document.getElementById('previewFrame');
+        var previewImageWrap = document.getElementById('previewImageWrap');
+        var previewImage = document.getElementById('previewImage');
+        var previewUnsupported = document.getElementById('previewUnsupported');
+
+        var previewUrl = '/documentos/' + docId + '/preview';
+
+        // Reset all
+        previewFrame.style.display = 'none';
+        previewImageWrap.style.display = 'none';
+        previewUnsupported.style.display = 'none';
+
+        var imgExts = ['png', 'jpg', 'jpeg', 'gif'];
+
+        if (extension === 'pdf') {
+            previewFrame.src = previewUrl;
+            previewFrame.style.display = 'block';
+        } else if (imgExts.indexOf(extension) !== -1) {
+            previewImage.src = previewUrl;
+            previewImageWrap.style.display = 'flex';
+        } else if (extension === 'txt') {
+            previewFrame.src = previewUrl;
+            previewFrame.style.display = 'block';
+        } else {
+            previewUnsupported.style.display = 'flex';
+        }
+
+        var modal = new bootstrap.Modal(document.getElementById('previewModal'));
+        modal.show();
+    });
+
+    // Limpiar al cerrar modal
+    document.getElementById('previewModal').addEventListener('hidden.bs.modal', function() {
+        document.getElementById('previewFrame').src = '';
+        document.getElementById('previewImage').src = '';
+    });
+});
+</script>
 {% endblock %}

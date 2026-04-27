@@ -117,6 +117,8 @@ class Documento(db.Model):
     fecha_subida = db.Column(db.DateTime, default=datetime.utcnow)
     subido_por = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     descripcion = db.Column(db.Text, default='')
+    visibilidad = db.Column(db.String(20), nullable=False, default='publico')
+    # visibilidad: 'publico' (todos lo ven) o 'privado' (solo Admin, Gestor, RRHH)
 
     user = db.relationship('User', foreign_keys=[subido_por])
 

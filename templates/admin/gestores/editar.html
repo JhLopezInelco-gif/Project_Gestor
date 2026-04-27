@@ -50,9 +50,19 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Cargo</label>
-                        <input type="text" name="cargo" class="form-control"
-                               value="{{ gestor.cargo }}">
+                        <label class="form-label">Cargo <span class="text-danger">*</span></label>
+                        <select name="cargo" class="form-select" required>
+                            <option value="">-- Seleccionar Cargo --</option>
+                            <option value="Analista TIC" {% if gestor.cargo == 'Analista TIC' %}selected{% endif %}>Analista TIC</option>
+                            <option value="Jefe de Compras" {% if gestor.cargo == 'Jefe de Compras' %}selected{% endif %}>Jefe de Compras</option>
+                            <option value="Jefe de Bodega" {% if gestor.cargo == 'Jefe de Bodega' %}selected{% endif %}>Jefe de Bodega</option>
+                            <option value="Director de Gestión Humana" {% if gestor.cargo == 'Director de Gestión Humana' %}selected{% endif %}>Director de Gestión Humana</option>
+                            <option value="Director Financiero" {% if gestor.cargo == 'Director Financiero' %}selected{% endif %}>Director Financiero</option>
+                            <option value="Coordinadora Administración Financiera" {% if gestor.cargo == 'Coordinadora Administración Financiera' %}selected{% endif %}>Coordinadora Administración Financiera</option>
+                            <option value="Coordinadora Agencia Bogotá" {% if gestor.cargo == 'Coordinadora Agencia Bogotá' %}selected{% endif %}>Coordinadora Agencia Bogotá</option>
+                            <option value="Coordinadora de SGI" {% if gestor.cargo == 'Coordinadora de SGI' %}selected{% endif %}>Coordinadora de SGI</option>
+                            <option value="Gerencia" {% if gestor.cargo == 'Gerencia' %}selected{% endif %}>Gerencia</option>
+                        </select>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Nueva Contraseña</label>

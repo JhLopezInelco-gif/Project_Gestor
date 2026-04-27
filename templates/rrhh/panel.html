@@ -9,39 +9,125 @@
     <div class="row g-4 mb-4">
         <div class="col-md-2">
             <div class="stat-card">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="stat-icon bg-gradient-1"><i class="bi bi-people-fill"></i></div>
+                </div>
                 <div class="stat-number">{{ stats.total_empleados }}</div>
                 <div class="stat-label">Empleados</div>
             </div>
         </div>
         <div class="col-md-2">
             <div class="stat-card">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="stat-icon bg-gradient-2"><i class="bi bi-book-fill"></i></div>
+                </div>
                 <div class="stat-number">{{ stats.total_capacitaciones }}</div>
                 <div class="stat-label">Capacitaciones</div>
             </div>
         </div>
         <div class="col-md-2">
             <div class="stat-card">
-                <div class="stat-number">{{ stats.total_progresos }}</div>
-                <div class="stat-label">Intentos</div>
-            </div>
-        </div>
-        <div class="col-md-2">
-            <div class="stat-card">
-                <div class="stat-number text-success">{{ stats.total_aprobados }}</div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="stat-icon bg-gradient-4"><i class="bi bi-check-circle-fill"></i></div>
+                </div>
+                <div class="stat-number" style="color:#10b981;">{{ stats.total_aprobados }}</div>
                 <div class="stat-label">Aprobados</div>
             </div>
         </div>
         <div class="col-md-2">
             <div class="stat-card">
-                <div class="stat-number text-warning">{{ stats.total_pendientes }}</div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="stat-icon bg-gradient-3"><i class="bi bi-clock-fill"></i></div>
+                </div>
+                <div class="stat-number" style="color:#f59e0b;">{{ stats.total_pendientes }}</div>
                 <div class="stat-label">Pendientes</div>
             </div>
         </div>
         <div class="col-md-2">
             <div class="stat-card">
-                <div class="stat-number text-primary">{{ stats.tasa_aprobacion }}%</div>
-                <div class="stat-label">Tasa Aprobación</div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="stat-icon bg-gradient-1"><i class="bi bi-percent"></i></div>
+                </div>
+                <div class="stat-number" style="color:#6366f1;">{{ stats.tasa_aprobacion }}%</div>
+                <div class="stat-label">Tasa Aprobación General</div>
             </div>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="stat-icon bg-gradient-2"><i class="bi bi-bar-chart-fill"></i></div>
+                </div>
+                <div class="stat-number">{{ stats.total_progresos }}</div>
+                <div class="stat-label">Total Intentos</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas por Área -->
+    <div class="card-custom mb-4">
+        <div class="card-header">
+            <i class="bi bi-building"></i> Estadísticas por Área (Capacitaciones vs Aprobados/Pendientes)
+        </div>
+        <div class="card-body p-0">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Área</th>
+                        <th>Gestor(es)</th>
+                        <th class="text-center">Capacitaciones</th>
+                        <th class="text-center">Total Intentos</th>
+                        <th class="text-center">Aprobados</th>
+                        <th class="text-center">Pendientes</th>
+                        <th class="text-center">% Aprobación</th>
+                        <th>Progreso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sa in stats_areas %}
+                    <tr>
+                        <td><strong>{{ sa.area }}</strong></td>
+                        <td>
+                            {% for g in sa.gestores %}
+                            <span class="badge-role" style="background:#ede9fe;color:#6366f1;">{{ g }}</span>
+                            {% if not loop.last %}<br>{% endif %}
+                            {% endfor %}
+                            {% if not sa.gestores %}
+                            <small class="text-muted">Sin gestor</small>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <span class="fw-bold">{{ sa.total_capacitaciones }}</span>
+                        </td>
+                        <td class="text-center">{{ sa.total_progresos }}</td>
+                        <td class="text-center">
+                            <span style="color:#10b981;font-weight:700;">{{ sa.aprobados }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span style="color:#f59e0b;font-weight:700;">{{ sa.pendientes }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% if sa.tasa >= 80 %}
+                            <span class="badge-estado badge-aprobado">{{ sa.tasa }}%</span>
+                            {% elif sa.tasa >= 50 %}
+                            <span class="badge-estado" style="background:#fef3c7;color:#92400e;">{{ sa.tasa }}%</span>
+                            {% elif sa.tasa > 0 %}
+                            <span class="badge-estado" style="background:#fee2e2;color:#991b1b;">{{ sa.tasa }}%</span>
+                            {% else %}
+                            <span class="badge-estado" style="background:#f1f5f9;color:#64748b;">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td style="min-width:150px;">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress-custom" style="width:100%;">
+                                    <div class="progress-bar {% if sa.tasa >= 80 %}bg-success{% elif sa.tasa >= 50 %}bg-warning{% else %}bg-danger{% endif %}"
+                                         style="width: {{ sa.tasa }}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -51,7 +137,7 @@
             <div class="col-md-4">
                 <label class="form-label fw-semibold">Filtrar por Área</label>
                 <select class="form-select" name="area_id">
-                    <option value="">Todas</option>
+                    <option value="">Todas las áreas</option>
                     {% for area in areas %}
                     <option value="{{ area.id }}"
                             {% if area_seleccionada == area.id %}selected{% endif %}>
@@ -79,10 +165,12 @@
         </form>
     </div>
 
-    <!-- Tabla de empleados -->
+    <!-- Tabla de empleados: Disponibles vs Aprobadas -->
     <div class="card-custom">
         <div class="card-header">
-            <i class="bi bi-table"></i> Progreso de Empleados
+            <i class="bi bi-person-lines-fill"></i> Estadísticas por Empleado
+            {% if area_seleccionada %}— Filtrado por área{% endif %}
+            {% if estado_filtro %}— Solo {{ estado_filtro }}s{% endif %}
         </div>
         <div class="card-body p-0">
             <table class="table-custom">
@@ -90,9 +178,11 @@
                     <tr>
                         <th>Empleado</th>
                         <th>Cargo</th>
-                        <th>Cursos</th>
-                        <th>Aprobados</th>
-                        <th>Pendientes</th>
+                        <th class="text-center">Disponibles</th>
+                        <th class="text-center">Realizados</th>
+                        <th class="text-center">Aprobados</th>
+                        <th class="text-center">Pendientes</th>
+                        <th class="text-center">% Aprobación</th>
                         <th>Promedio</th>
                         <th>Acciones</th>
                     </tr>
@@ -105,12 +195,26 @@
                             <br><small class="text-muted">@{{ emp.username }}</small>
                         </td>
                         <td>{{ emp.cargo }}</td>
-                        <td class="text-center">{{ emp.total_cursos }}</td>
                         <td class="text-center">
-                            <span class="text-success fw-bold">{{ emp.aprobados }}</span>
+                            <span class="fw-bold" style="color:#6366f1;">{{ emp.total_disponibles }}</span>
+                        </td>
+                        <td class="text-center">{{ emp.total_realizados }}</td>
+                        <td class="text-center">
+                            <span style="color:#10b981;font-weight:700;">{{ emp.aprobados }}</span>
                         </td>
                         <td class="text-center">
-                            <span class="text-warning fw-bold">{{ emp.pendientes }}</span>
+                            <span style="color:#f59e0b;font-weight:700;">{{ emp.pendientes }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% if emp.pct_aprobacion >= 80 %}
+                            <span class="badge-estado badge-aprobado">{{ emp.pct_aprobacion }}%</span>
+                            {% elif emp.pct_aprobacion >= 50 %}
+                            <span class="badge-estado" style="background:#fef3c7;color:#92400e;">{{ emp.pct_aprobacion }}%</span>
+                            {% elif emp.pct_aprobacion > 0 %}
+                            <span class="badge-estado" style="background:#fee2e2;color:#991b1b;">{{ emp.pct_aprobacion }}%</span>
+                            {% else %}
+                            <span class="badge-estado" style="background:#f1f5f9;color:#64748b;">0%</span>
+                            {% endif %}
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
@@ -121,7 +225,7 @@
                                         {% else %}bg-danger{% endif %}"
                                         style="width: {{ emp.promedio }}%"></div>
                                 </div>
-                                {{ emp.promedio }}%
+                                <small>{{ emp.promedio }}%</small>
                             </div>
                         </td>
                         <td>
@@ -132,6 +236,13 @@
                         </td>
                     </tr>
                     {% endfor %}
+                    {% if not tabla_empleados %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted py-4">
+                            <i class="bi bi-info-circle"></i> No hay resultados con los filtros seleccionados.
+                        </td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>

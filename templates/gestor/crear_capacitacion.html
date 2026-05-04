@@ -11,57 +11,222 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card-custom">
-                <div class="card-body">
-                    <form method="POST">
-                        <div class="mb-3">
-                            <label for="titulo" class="form-label fw-semibold">
-                                Título de la Capacitación *
-                            </label>
-                            <input type="text" class="form-control" id="titulo"
-                                   name="titulo" required placeholder="Ej: Seguridad Industrial">
+        <div class="col-md-10">
+            <form method="POST" enctype="multipart/form-data">
+                <!-- Información básica -->
+                <div class="card-custom mb-4">
+                    <div class="card-header">
+                        <i class="bi bi-info-circle"></i> Información Básica
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="titulo" class="form-label fw-semibold">
+                                        Título de la Capacitación *
+                                    </label>
+                                    <input type="text" class="form-control" id="titulo"
+                                           name="titulo" required placeholder="Ej: Seguridad Industrial">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Área</label>
+                                    <input type="text" class="form-control" disabled
+                                           value="{{ gestor.area.nombre_area }}">
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle"></i> Se asigna automáticamente.
+                                    </small>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="descripcion" class="form-label fw-semibold">
-                                Descripción
-                            </label>
+                            <label for="descripcion" class="form-label fw-semibold">Descripción</label>
                             <textarea class="form-control" id="descripcion" name="descripcion"
                                       rows="3" placeholder="Descripción del contenido..."></textarea>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Área</label>
-                            <input type="text" class="form-control" disabled
-                                   value="{{ gestor.area.nombre_area }}">
-                            <small class="text-muted">
-                                <i class="bi bi-info-circle"></i>
-                                Se asigna automáticamente a su área.
-                            </small>
+                <!-- Porcentaje de Aprobación -->
+                <div class="card-custom mb-4">
+                    <div class="card-header">
+                        <i class="bi bi-percent"></i> Porcentaje de Aprobación
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <label for="porcentaje_aprobacion" class="form-label fw-semibold">
+                                    % Mínimo para Aprobar *
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="porcentaje_aprobacion"
+                                           name="porcentaje_aprobacion" min="1" max="100" value="80"
+                                           required placeholder="80">
+                                    <span class="input-group-text"><strong>%</strong></span>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle"></i>
+                                    El empleado debe obtener al menos este porcentaje para aprobar la capacitación.
+                                    Valor recomendado: 80%.
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-center">
+                                <div id="preview_porcentaje" class="mt-2"
+                                     style="font-size:3rem;font-weight:bold;color:var(--primary);">80%</div>
+                                <small class="text-muted">mínimo requerido</small>
+                            </div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="mb-4">
-                            <label for="material_link" class="form-label fw-semibold">
-                                <i class="bi bi-link-45deg"></i> Material de Apoyo (Link)
-                            </label>
+                <!-- Link principal -->
+                <div class="card-custom mb-4">
+                    <div class="card-header">
+                        <i class="bi bi-link-45deg"></i> Enlace Principal de Material
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-0">
                             <input type="url" class="form-control" id="material_link"
                                    name="material_link"
                                    placeholder="https://www.youtube.com/watch?v=... o URL de PDF">
                             <small class="text-muted">
-                                Ingrese el enlace al video, PDF o recurso externo.
+                                Ingrese un enlace principal al video, PDF o recurso externo.
                             </small>
                         </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="bi bi-check-circle"></i> Crear y Agregar Preguntas
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Subir archivos -->
+                <div class="card-custom mb-4">
+                    <div class="card-header">
+                        <i class="bi bi-cloud-upload"></i> Subir Archivos de Material
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="archivos" class="form-label fw-semibold">
+                                Seleccionar archivos (Videos, PDFs, Imágenes, Documentos, etc.)
+                            </label>
+                            <input type="file" class="form-control" id="archivos"
+                                   name="archivos" multiple
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.bmp,.webp,.mp4,.avi,.mov,.wmv,.mkv,.mp3,.wav,.zip,.rar,.txt,.csv">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i>
+                                Puede seleccionar múltiples archivos. Formatos permitidos: PDF, Word, Excel,
+                                PowerPoint, imágenes, videos, audio, archivos comprimidos, texto.
+                                Máximo 16MB por archivo.
+                            </small>
+                        </div>
+                        <div id="file_list" class="mt-2"></div>
+                    </div>
+                </div>
+
+                <!-- Links adicionales -->
+                <div class="card-custom mb-4">
+                    <div class="card-header">
+                        <i class="bi bi-link-45deg"></i> Links Adicionales
+                    </div>
+                    <div class="card-body">
+                        <div id="links_container">
+                            <div class="row mb-2 link-row">
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control" name="link_titulo[]"
+                                           placeholder="Título del enlace (ej: Video de YouTube)">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="url" class="form-control" name="link_url[]"
+                                           placeholder="https://...">
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                                            onclick="this.closest('.link-row').remove()" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addLink()">
+                            <i class="bi bi-plus"></i> Agregar otro link
+                        </button>
+                        <small class="text-muted d-block mt-2">
+                            Agregue enlaces a videos de YouTube, Vimeo, Google Drive, OneDrive, etc.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-check-circle"></i> Crear y Agregar Preguntas
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+// Preview del porcentaje de aprobación
+document.getElementById('porcentaje_aprobacion').addEventListener('input', function() {
+    const val = this.value || 80;
+    const preview = document.getElementById('preview_porcentaje');
+    preview.textContent = val + '%';
+    preview.style.color = val < 60 ? '#dc3545' : val < 80 ? '#ffc107' : 'var(--primary)';
+});
+
+// Lista de archivos seleccionados
+document.getElementById('archivos').addEventListener('change', function() {
+    const list = document.getElementById('file_list');
+    list.innerHTML = '';
+    for (const file of this.files) {
+        const size = (file.size / 1024 / 1024).toFixed(2);
+        const icon = getFileIcon(file.name);
+        list.innerHTML += `
+            <div class="d-flex align-items-center mb-1 p-2" style="background:#f8fafc;border-radius:8px;">
+                <i class="bi ${icon} me-2" style="font-size:1.2rem;color:var(--primary);"></i>
+                <span class="flex-grow-1">${file.name}</span>
+                <span class="badge bg-secondary">${size} MB</span>
+            </div>`;
+    }
+});
+
+function getFileIcon(name) {
+    const ext = name.split('.').pop().toLowerCase();
+    const icons = {
+        'pdf': 'bi-file-pdf', 'doc': 'bi-file-word', 'docx': 'bi-file-word',
+        'xls': 'bi-file-excel', 'xlsx': 'bi-file-excel',
+        'ppt': 'bi-file-ppt', 'pptx': 'bi-file-ppt',
+        'jpg': 'bi-image', 'jpeg': 'bi-image', 'png': 'bi-image',
+        'gif': 'bi-image', 'bmp': 'bi-image', 'webp': 'bi-image',
+        'mp4': 'bi-play-circle', 'avi': 'bi-play-circle',
+        'mov': 'bi-play-circle', 'wmv': 'bi-play-circle', 'mkv': 'bi-play-circle',
+        'mp3': 'bi-music-note', 'wav': 'bi-music-note',
+        'zip': 'bi-file-zip', 'rar': 'bi-file-zip',
+        'txt': 'bi-file-text', 'csv': 'bi-file-text'
+    };
+    return icons[ext] || 'bi-file-earmark';
+}
+
+function addLink() {
+    const container = document.getElementById('links_container');
+    const row = document.createElement('div');
+    row.className = 'row mb-2 link-row';
+    row.innerHTML = `
+        <div class="col-md-5">
+            <input type="text" class="form-control" name="link_titulo[]"
+                   placeholder="Título del enlace">
+        </div>
+        <div class="col-md-6">
+            <input type="url" class="form-control" name="link_url[]"
+                   placeholder="https://...">
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                    onclick="this.closest('.link-row').remove()" title="Eliminar">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>`;
+    container.appendChild(row);
+}
+</script>
 {% endblock %}

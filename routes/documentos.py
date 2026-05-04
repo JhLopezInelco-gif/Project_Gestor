@@ -7,11 +7,12 @@ Rutas del Módulo de Documentación
 """
 
 import os
+from datetime import datetime
 from flask import (Blueprint, render_template, redirect, url_for,
                    request, flash, send_from_directory, current_app)
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
-from models import db, Documento, Area
+from models import db, Documento, Area, Gestor
 
 documentos_bp = Blueprint('documentos', __name__)
 
@@ -72,6 +73,9 @@ def subir():
         return redirect(url_for('documentos.listar'))
 
     areas = Area.query.all()
+    gestor = None
+    if current_user.role == 'Gestor':
+        gestor = Gestor.query.filter_by(user_id=current_user.id).first()
 
     if request.method == 'POST':
         titulo = request.form.get('titulo', '').strip()
@@ -80,29 +84,33 @@ def subir():
         visibilidad = request.form.get('visibilidad', 'publico').strip()
         archivo = request.files.get('archivo')
 
+        # Gestor: asignar área automáticamente
+        if current_user.role == 'Gestor' and gestor:
+            area_id = gestor.area_id
+
         if not titulo or not area_id:
             flash('El título y el área son obligatorios.', 'warning')
-            return render_template('documentos/subir.html', areas=areas)
+            return render_template('documentos/subir.html',
+                                   areas=areas, gestor=gestor)
 
         if not archivo or archivo.filename == '':
             flash('Debe seleccionar un archivo.', 'warning')
-            return render_template('documentos/subir.html', areas=areas)
+            return render_template('documentos/subir.html',
+                                   areas=areas, gestor=gestor)
 
         # Validación: gestor solo puede subir a su área
-        if current_user.role == 'Gestor':
-            from models import Gestor
-            gestor = Gestor.query.filter_by(user_id=current_user.id).first()
-            if gestor and gestor.area_id != area_id:
+        if current_user.role == 'Gestor' and gestor:
+            if gestor.area_id != area_id:
                 flash('Solo puede subir documentos a su propia área.', 'danger')
-                return render_template('documentos/subir.html', areas=areas)
+                return render_template('documentos/subir.html',
+                                       areas=areas, gestor=gestor)
 
         if not allowed_file(archivo.filename):
             flash('Tipo de archivo no permitido.', 'danger')
-            return render_template('documentos/subir.html', areas=areas)
+            return render_template('documentos/subir.html',
+                                   areas=areas, gestor=gestor)
 
         filename = secure_filename(archivo.filename)
-        # Agregar timestamp para evitar colisiones
-        from datetime import datetime
         timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
         filename = f'{timestamp}_{filename}'
 
@@ -124,7 +132,7 @@ def subir():
         flash(f'Documento "{titulo}" subido correctamente.', 'success')
         return redirect(url_for('documentos.listar'))
 
-    return render_template('documentos/subir.html', areas=areas)
+    return render_template('documentos/subir.html', areas=areas, gestor=gestor)
 
 
 # ──────────────────────────────────────────────

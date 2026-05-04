@@ -28,7 +28,8 @@
                         <th>Título</th>
                         <th>Área</th>
                         <th>Preguntas</th>
-                        <th>Material</th>
+                        <th>Materiales</th>
+                        <th>Aprobación</th>
                         <th>Estado</th>
                         <th>Fecha</th>
                         <th>Acciones</th>
@@ -48,14 +49,25 @@
                         </td>
                         <td>{{ cap.preguntas | length }}</td>
                         <td>
-                            {% if cap.material_link %}
-                                <a href="{{ cap.material_link }}" target="_blank"
-                                   class="btn btn-sm btn-outline-info">
-                                    <i class="bi bi-link-45deg"></i> Ver
-                                </a>
+                            {% set mat_count = cap.materiales | length %}
+                            {% if mat_count > 0 or cap.material_link %}
+                                {% if cap.material_link %}
+                                    <a href="{{ cap.material_link }}" target="_blank"
+                                       class="btn btn-sm btn-outline-info mb-1">
+                                        <i class="bi bi-link-45deg"></i> Link
+                                    </a>
+                                {% endif %}
+                                {% if mat_count > 0 %}
+                                    <span class="badge bg-info">{{ mat_count }} archivo{{ 's' if mat_count > 1 }}</span>
+                                {% endif %}
                             {% else %}
                                 <span class="text-muted">Sin material</span>
                             {% endif %}
+                        </td>
+                        <td>
+                            <span class="fw-bold" style="color:var(--primary);">
+                                {{ cap.porcentaje_aprobacion }}%
+                            </span>
                         </td>
                         <td>
                             {% if cap.activa %}

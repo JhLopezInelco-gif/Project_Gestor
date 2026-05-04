@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 """
 Rutas del Módulo Gestor
-- Subir material (links o rutas de archivos)
+- Subir material (links, archivos: videos, PDFs, imágenes, todo formato)
 - Crear capacitaciones y cuestionarios asociados a su área
+- Definir % de aprobación por capacitación
 - Validación: un gestor solo puede gestionar contenido de su propia área
 """
 
-from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
+import os
+from flask import (Blueprint, render_template, redirect, url_for,
+                   request, flash, jsonify, send_from_directory, current_app)
 from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
+from datetime import datetime
 from models import (db, Gestor, Capacitacion, Pregunta, Area,
-                    ProgresoCapacitacion)
+                    ProgresoCapacitacion, MaterialCapacitacion)
 
 gestor_bp = Blueprint('gestor', __name__)
 
@@ -61,6 +66,7 @@ def crear_capacitacion():
         titulo = request.form.get('titulo', '').strip()
         descripcion = request.form.get('descripcion', '').strip()
         material_link = request.form.get('material_link', '').strip()
+        porcentaje_aprobacion = request.form.get('porcentaje_aprobacion', 80, type=int)
 
         # Validación: el área se asigna automáticamente según el gestor
         area_id = gestor.area_id
@@ -69,15 +75,43 @@ def crear_capacitacion():
             flash('El título es obligatorio.', 'warning')
             return render_template('gestor/crear_capacitacion.html', gestor=gestor)
 
+        # Validar porcentaje de aprobación
+        if porcentaje_aprobacion < 1 or porcentaje_aprobacion > 100:
+            flash('El porcentaje de aprobación debe estar entre 1 y 100.', 'warning')
+            return render_template('gestor/crear_capacitacion.html', gestor=gestor)
+
         nueva = Capacitacion(
             titulo=titulo,
             descripcion=descripcion,
             area_id=area_id,
             gestor_id=gestor.id,
             material_link=material_link,
+            porcentaje_aprobacion=porcentaje_aprobacion,
             activa=True
         )
         db.session.add(nueva)
+        db.session.commit()
+
+        # ─── Procesar archivos subidos ───
+        archivos = request.files.getlist('archivos')
+        for archivo in archivos:
+            if archivo and archivo.filename:
+                _guardar_material(nueva.id, archivo)
+
+        # ─── Procesar links adicionales ───
+        links_titulos = request.form.getlist('link_titulo[]')
+        links_urls = request.form.getlist('link_url[]')
+        for i in range(len(links_urls)):
+            url_link = links_urls[i].strip()
+            if url_link:
+                titulo_link = links_titulos[i].strip() if i < len(links_titulos) else url_link
+                material = MaterialCapacitacion(
+                    capacitacion_id=nueva.id,
+                    tipo='link',
+                    titulo=titulo_link if titulo_link else url_link,
+                    url=url_link
+                )
+                db.session.add(material)
         db.session.commit()
 
         flash(f'Capacitación "{titulo}" creada correctamente.', 'success')
@@ -112,12 +146,119 @@ def editar_capacitacion(capacitacion_id):
         cap.material_link = request.form.get('material_link', '').strip()
         cap.activa = 'activa' in request.form
 
+        porcentaje = request.form.get('porcentaje_aprobacion', 80, type=int)
+        if 1 <= porcentaje <= 100:
+            cap.porcentaje_aprobacion = porcentaje
+
+        # ─── Procesar archivos subidos nuevos ───
+        archivos = request.files.getlist('archivos')
+        for archivo in archivos:
+            if archivo and archivo.filename:
+                _guardar_material(cap.id, archivo)
+
+        # ─── Procesar links adicionales nuevos ───
+        links_titulos = request.form.getlist('link_titulo[]')
+        links_urls = request.form.getlist('link_url[]')
+        for i in range(len(links_urls)):
+            url_link = links_urls[i].strip()
+            if url_link:
+                titulo_link = links_titulos[i].strip() if i < len(links_titulos) else url_link
+                material = MaterialCapacitacion(
+                    capacitacion_id=cap.id,
+                    tipo='link',
+                    titulo=titulo_link if titulo_link else url_link,
+                    url=url_link
+                )
+                db.session.add(material)
+
         db.session.commit()
         flash('Capacitación actualizada correctamente.', 'success')
         return redirect(url_for('gestor.mis_capacitaciones'))
 
+    materiales = MaterialCapacitacion.query.filter_by(
+        capacitacion_id=cap.id
+    ).order_by(MaterialCapacitacion.tipo, MaterialCapacitacion.fecha_subida).all()
+
     return render_template('gestor/editar_capacitacion.html',
-                           capacitacion=cap, gestor=gestor)
+                           capacitacion=cap, gestor=gestor,
+                           materiales=materiales)
+
+
+# ──────────────────────────────────────────────
+#  FUNCIONES AUXILIARES PARA MATERIALES
+# ──────────────────────────────────────────────
+def _guardar_material(capacitacion_id, archivo):
+    """Guarda un archivo subido como material de capacitación"""
+    filename = secure_filename(archivo.filename)
+    if not filename:
+        return
+
+    # Generar nombre único para evitar colisiones
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    nombre_seguro = f"{timestamp}_{filename}"
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+    filepath = os.path.join(upload_folder, nombre_seguro)
+    archivo.save(filepath)
+
+    # Tamaño del archivo
+    tamaño = os.path.getsize(filepath)
+
+    material = MaterialCapacitacion(
+        capacitacion_id=capacitacion_id,
+        tipo='archivo',
+        titulo=filename,
+        archivo_path=nombre_seguro,
+        nombre_original=filename,
+        tipo_mime=archivo.mimetype or 'application/octet-stream',
+        tamaño=tamaño
+    )
+    db.session.add(material)
+
+
+@gestor_bp.route('/material/<int:material_id>/descargar')
+@login_required
+def descargar_material(material_id):
+    """Descargar un archivo de material de capacitación (solo Gestor/Admin)"""
+    if current_user.role not in ('Gestor', 'Admin'):
+        flash('Acceso no autorizado.', 'danger')
+        return redirect(url_for('main.dashboard'))
+    material = MaterialCapacitacion.query.get_or_404(material_id)
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+    return send_from_directory(
+        upload_folder,
+        material.archivo_path,
+        as_attachment=True,
+        download_name=material.nombre_original
+    )
+
+
+@gestor_bp.route('/material/<int:material_id>/eliminar', methods=['POST'])
+@login_required
+def eliminar_material(material_id):
+    """Eliminar un material de capacitación"""
+    gestor = get_gestor()
+    if not gestor:
+        return jsonify({'error': 'No autorizado'}), 403
+
+    material = MaterialCapacitacion.query.get_or_404(material_id)
+    cap = Capacitacion.query.get(material.capacitacion_id)
+
+    if cap.gestor_id != gestor.id:
+        return jsonify({'error': 'No autorizado'}), 403
+
+    # Eliminar archivo físico si es un archivo subido
+    if material.tipo == 'archivo' and material.archivo_path:
+        upload_folder = current_app.config['UPLOAD_FOLDER']
+        filepath = os.path.join(upload_folder, material.archivo_path)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+
+    capacitacion_id = material.capacitacion_id
+    db.session.delete(material)
+    db.session.commit()
+    flash('Material eliminado correctamente.', 'info')
+    return redirect(url_for('gestor.editar_capacitacion',
+                            capacitacion_id=capacitacion_id))
 
 
 # ──────────────────────────────────────────────

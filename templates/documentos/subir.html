@@ -23,7 +23,8 @@
                                    name="titulo" required placeholder="Nombre descriptivo...">
                         </div>
 
-                        {% if current_user.role == 'Gestor' %}
+                        {% if current_user.role == 'Gestor' and gestor %}
+                        <input type="hidden" name="area_id" value="{{ gestor.area_id }}">
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Área</label>
                             <input type="text" class="form-control" disabled

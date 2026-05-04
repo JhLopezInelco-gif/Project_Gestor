@@ -1,37 +1,54 @@
 /* ============================================================
    Gestor de Documentación y Capacitación - Estilos Modernos
+   Paleta Institucional INELCO
    ============================================================ */
 
 :root {
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
-    --primary-light: #818cf8;
-    --secondary: #0ea5e9;
-    --accent: #f43f5e;
-    --success: #10b981;
-    --success-dark: #059669;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --info: #06b6d4;
-    --dark: #0f172a;
-    --dark-2: #1e293b;
-    --light: #f8fafc;
-    --gray: #64748b;
-    --gray-light: #94a3b8;
-    --border: #e2e8f0;
-    --sidebar-bg: #0f172a;
-    --sidebar-hover: #1e293b;
-    --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
-    --gradient-2: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
-    --gradient-3: linear-gradient(135deg, #f43f5e 0%, #fb923c 100%);
-    --gradient-4: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
-    --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a5f 100%);
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.12);
-    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.18);
-    --shadow-primary: 0 4px 14px rgba(99, 102, 241, 0.35);
-    --radius: 14px;
-    --radius-sm: 8px;
+    /* === PRINCIPALES (Marca) === */
+    --primary:          #D60000;
+    --primary-dark:     #B00000;
+    --primary-light:    #FF1A1A;
+
+    /* === NEUTROS === */
+    --black:            #000000;
+    --dark:             #1A1A1A;
+    --dark-2:           #333333;
+    --gray:             #666666;
+    --gray-medium:      #999999;
+    --gray-light:       #E0E0E0;
+    --white:            #FFFFFF;
+    --light:            #F5F5F5;
+
+    /* === SEMÁNTICOS (Estados) === */
+    --success:          #2E7D32;
+    --success-dark:     #1B5E20;
+    --warning:          #F57F17;
+    --danger:           #D60000;
+
+    /* === DERIVADOS === */
+    --secondary:        #333333;
+    --accent:           #D60000;
+    --info:             #666666;
+    --border:           #E0E0E0;
+    --sidebar-bg:       #1A1A1A;
+    --sidebar-hover:    #333333;
+
+    /* === GRADIENTES === */
+    --gradient-1:       linear-gradient(135deg, #D60000 0%, #B00000 50%, #FF1A1A 100%);
+    --gradient-2:       linear-gradient(135deg, #333333 0%, #D60000 100%);
+    --gradient-3:       linear-gradient(135deg, #D60000 0%, #F57F17 100%);
+    --gradient-4:       linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+    --gradient-dark:    linear-gradient(135deg, #000000 0%, #1A1A1A 50%, #333333 100%);
+
+    /* === SOMBRAS === */
+    --shadow-sm:        0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-md:        0 4px 14px rgba(0, 0, 0, 0.12);
+    --shadow-lg:        0 10px 30px rgba(0, 0, 0, 0.18);
+    --shadow-primary:   0 4px 14px rgba(214, 0, 0, 0.3);
+
+    /* === BORDES === */
+    --radius:           14px;
+    --radius-sm:        8px;
 }
 
 * {
@@ -42,8 +59,8 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f1f5f9;
-    color: #334155;
+    background-color: #F5F5F5;
+    color: #333333;
     min-height: 100vh;
 }
 
@@ -55,7 +72,7 @@ body {
     background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-    background: var(--gray-light);
+    background: var(--gray-medium);
     border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -64,10 +81,10 @@ body {
 
 /* ── Navbar ──────────────────────────────── */
 .navbar-custom {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #312e81 100%);
+    background: linear-gradient(135deg, #000000 0%, #1A1A1A 60%, #333333 100%);
     padding: 0.75rem 1.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    border-bottom: 2px solid rgba(99, 102, 241, 0.4);
+    border-bottom: 2px solid rgba(214, 0, 0, 0.5);
 }
 
 .navbar-custom .navbar-brand {
@@ -82,7 +99,7 @@ body {
 }
 
 .navbar-custom .nav-link {
-    color: #cbd5e1;
+    color: #E0E0E0;
     transition: all 0.25s ease;
     font-size: 0.9rem;
     border-radius: var(--radius-sm);
@@ -92,7 +109,7 @@ body {
 .navbar-custom .nav-link:hover,
 .navbar-custom .nav-link.active {
     color: #fff;
-    background: rgba(99, 102, 241, 0.2);
+    background: rgba(214, 0, 0, 0.25);
 }
 
 .navbar-custom .nav-link i {
@@ -103,7 +120,7 @@ body {
 .sidebar {
     width: 260px;
     background: var(--gradient-dark);
-    border-right: 1px solid rgba(99, 102, 241, 0.15);
+    border-right: 1px solid rgba(214, 0, 0, 0.15);
     height: calc(100vh - 60px);
     position: fixed;
     top: 60px;
@@ -114,7 +131,7 @@ body {
 }
 
 .sidebar .nav-link {
-    color: #94a3b8;
+    color: #999999;
     padding: 0.7rem 1.5rem;
     display: flex;
     align-items: center;
@@ -125,13 +142,13 @@ body {
 }
 
 .sidebar .nav-link:hover {
-    background: rgba(99, 102, 241, 0.12);
-    color: #e2e8f0;
+    background: rgba(214, 0, 0, 0.12);
+    color: #E0E0E0;
     border-left-color: var(--primary-light);
 }
 
 .sidebar .nav-link.active {
-    background: rgba(99, 102, 241, 0.2);
+    background: rgba(214, 0, 0, 0.2);
     color: #fff;
     border-left-color: var(--primary-light);
     font-weight: 600;
@@ -147,10 +164,10 @@ body {
     padding: 0.7rem 1.5rem;
     font-size: 0.65rem;
     text-transform: uppercase;
-    color: #475569;
+    color: #666666;
     font-weight: 800;
     letter-spacing: 1.5px;
-    border-top: 1px solid rgba(99, 102, 241, 0.08);
+    border-top: 1px solid rgba(214, 0, 0, 0.08);
     margin-top: 0.3rem;
 }
 
@@ -261,7 +278,7 @@ body {
 
 .table-custom thead th {
     background: var(--dark);
-    color: #e2e8f0;
+    color: #E0E0E0;
     padding: 0.85rem 1rem;
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -291,15 +308,15 @@ body {
 }
 
 .table-custom tbody tr:hover {
-    background: rgba(99, 102, 241, 0.04);
+    background: rgba(214, 0, 0, 0.04);
 }
 
 .table-custom tbody tr:nth-child(even) {
-    background: #fafbfc;
+    background: #FAFAFA;
 }
 
 .table-custom tbody tr:nth-child(even):hover {
-    background: rgba(99, 102, 241, 0.06);
+    background: rgba(214, 0, 0, 0.06);
 }
 
 /* ── Badges ──────────────────────────────── */
@@ -312,13 +329,13 @@ body {
 }
 
 .badge-aprobado {
-    background: #dcfce7;
-    color: #166534;
+    background: #C8E6C9;
+    color: #1B5E20;
 }
 
 .badge-pendiente {
-    background: #fef3c7;
-    color: #92400e;
+    background: #FFF3E0;
+    color: #E65100;
 }
 
 .badge-role {
@@ -343,7 +360,7 @@ body {
 
 .btn-primary-custom:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+    box-shadow: 0 6px 20px rgba(214, 0, 0, 0.45);
     color: #fff;
 }
 
@@ -360,43 +377,43 @@ body {
 }
 
 .btn-primary:hover {
-    background: var(--gradient-2);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+    background: linear-gradient(135deg, #B00000 0%, #D60000 100%);
+    box-shadow: 0 6px 20px rgba(214, 0, 0, 0.45);
     transform: translateY(-1px);
 }
 
 .btn-warning {
-    background: linear-gradient(135deg, #f59e0b, #fb923c);
+    background: linear-gradient(135deg, #F57F17, #FF9800);
     border: none;
     color: #fff;
-    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    box-shadow: 0 4px 14px rgba(245, 127, 23, 0.35);
 }
 
 .btn-warning:hover {
-    background: linear-gradient(135deg, #d97706, #f59e0b);
+    background: linear-gradient(135deg, #E65100, #F57F17);
     color: #fff;
     transform: translateY(-1px);
 }
 
 .btn-danger {
-    background: linear-gradient(135deg, #ef4444, #f43f5e);
+    background: linear-gradient(135deg, #D60000, #FF1A1A);
     border: none;
-    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 14px rgba(214, 0, 0, 0.3);
 }
 
 .btn-danger:hover {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
+    background: linear-gradient(135deg, #B00000, #D60000);
     transform: translateY(-1px);
 }
 
 .btn-success {
-    background: linear-gradient(135deg, #10b981, #06b6d4);
+    background: linear-gradient(135deg, #2E7D32, #43A047);
     border: none;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 14px rgba(46, 125, 50, 0.3);
 }
 
 .btn-success:hover {
-    background: linear-gradient(135deg, #059669, #10b981);
+    background: linear-gradient(135deg, #1B5E20, #2E7D32);
     transform: translateY(-1px);
 }
 
@@ -428,7 +445,7 @@ body {
     position: absolute;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(214, 0, 0, 0.2) 0%, transparent 70%);
     top: -100px;
     right: -100px;
     border-radius: 50%;
@@ -439,7 +456,7 @@ body {
     position: absolute;
     width: 400px;
     height: 400px;
-    background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 26, 26, 0.12) 0%, transparent 70%);
     bottom: -80px;
     left: -80px;
     border-radius: 50%;
@@ -474,7 +491,7 @@ body {
 
 .login-card .form-control:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+    box-shadow: 0 0 0 4px rgba(214, 0, 0, 0.1);
 }
 
 /* ── Evaluation ──────────────────────────── */
@@ -504,12 +521,12 @@ body {
 
 .pregunta-card .opcion:hover {
     border-color: var(--primary);
-    background: rgba(99, 102, 241, 0.06);
+    background: rgba(214, 0, 0, 0.04);
 }
 
 .pregunta-card .opcion.selected {
     border-color: var(--primary);
-    background: rgba(99, 102, 241, 0.1);
+    background: rgba(214, 0, 0, 0.08);
 }
 
 .pregunta-card input[type="radio"] {
@@ -518,7 +535,7 @@ body {
 
 .pregunta-card input[type="radio"]:checked + .opcion {
     border-color: var(--primary);
-    background: rgba(99, 102, 241, 0.12);
+    background: rgba(214, 0, 0, 0.1);
     font-weight: 700;
     color: var(--primary-dark);
 }
@@ -537,19 +554,19 @@ body {
 
 .result-card .calificacion-grande.aprobado {
     color: var(--success);
-    text-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    text-shadow: 0 4px 14px rgba(46, 125, 50, 0.3);
 }
 
 .result-card .calificacion-grande.reprobado {
     color: var(--danger);
-    text-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+    text-shadow: 0 4px 14px rgba(214, 0, 0, 0.3);
 }
 
 /* ── Progress Bar ────────────────────────── */
 .progress-custom {
     height: 10px;
     border-radius: 5px;
-    background: #e2e8f0;
+    background: #E0E0E0;
     overflow: hidden;
 }
 
@@ -579,7 +596,7 @@ body {
 .search-bar .form-control:focus,
 .search-bar .form-select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 4px rgba(214, 0, 0, 0.08);
 }
 
 /* ── Forms ───────────────────────────────── */
@@ -592,7 +609,7 @@ body {
 
 .form-control:focus, .form-select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 4px rgba(214, 0, 0, 0.08);
 }
 
 .form-label {
@@ -646,26 +663,26 @@ body {
 }
 
 .alert-info {
-    background: rgba(99, 102, 241, 0.08);
+    background: rgba(214, 0, 0, 0.06);
     color: var(--primary-dark);
     border-left: 4px solid var(--primary);
 }
 
 .alert-warning {
-    background: rgba(245, 158, 11, 0.08);
-    color: #92400e;
+    background: rgba(245, 127, 23, 0.08);
+    color: #E65100;
     border-left: 4px solid var(--warning);
 }
 
 .alert-danger {
-    background: rgba(239, 68, 68, 0.08);
-    color: #991b1b;
+    background: rgba(214, 0, 0, 0.08);
+    color: #B00000;
     border-left: 4px solid var(--danger);
 }
 
 .alert-success {
-    background: rgba(16, 185, 129, 0.08);
-    color: #065f46;
+    background: rgba(46, 125, 50, 0.08);
+    color: #1B5E20;
     border-left: 4px solid var(--success);
 }
 
@@ -673,7 +690,7 @@ body {
 .footer {
     text-align: center;
     padding: 1.2rem;
-    color: var(--gray-light);
+    color: var(--gray-medium);
     font-size: 0.8rem;
     border-top: 1px solid var(--border);
     margin-top: auto;
@@ -688,7 +705,7 @@ body {
 }
 
 .dropdown-item:hover {
-    background: rgba(99, 102, 241, 0.08);
+    background: rgba(214, 0, 0, 0.06);
     color: var(--primary-dark);
 }
 
@@ -723,4 +740,4 @@ hr {
 
 /* ── Text accents ────────────────────────── */
 .text-primary { color: var(--primary) !important; }
-.text-muted { color: var(--gray-light) !important; }
+.text-muted { color: var(--gray-medium) !important; }

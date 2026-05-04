@@ -137,7 +137,8 @@ class Capacitacion(db.Model):
     descripcion = db.Column(db.Text, default='')
     area_id = db.Column(db.Integer, db.ForeignKey('area.id'), nullable=False)
     gestor_id = db.Column(db.Integer, db.ForeignKey('gestor.id'), nullable=False)
-    material_link = db.Column(db.String(500), default='')  # Video/PDF link
+    material_link = db.Column(db.String(500), default='')  # Video/PDF link (legacy)
+    porcentaje_aprobacion = db.Column(db.Integer, default=80)  # % mínimo para aprobar
     activa = db.Column(db.Boolean, default=True)
     fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -146,6 +147,9 @@ class Capacitacion(db.Model):
                                 cascade='all, delete-orphan')
     # Progreso de empleados
     progreso = db.relationship('ProgresoCapacitacion', backref='capacitacion', lazy=True)
+    # Materiales adjuntos
+    materiales = db.relationship('MaterialCapacitacion', backref='capacitacion', lazy=True,
+                                 cascade='all, delete-orphan')
 
     def __repr__(self):
         return f'<Capacitacion {self.titulo}>'
@@ -221,6 +225,71 @@ class ProgresoCapacitacion(db.Model):
         return calificacion
 
     @staticmethod
-    def determinar_estado(calificacion):
-        """Aprobado solo si calificación >= 80%"""
-        return 'Aprobado' if calificacion >= 80 else 'Pendiente'
+    def determinar_estado(calificacion, porcentaje_aprobacion=80):
+        """Aprobado si calificación >= porcentaje_aprobacion (configurable por gestor)"""
+        return 'Aprobado' if calificacion >= porcentaje_aprobacion else 'Pendiente'
+
+
+# ──────────────────────────────────────────────
+#  MATERIAL DE CAPACITACIÓN (archivos adjuntos)
+# ──────────────────────────────────────────────
+class MaterialCapacitacion(db.Model):
+    __tablename__ = 'material_capacitacion'
+
+    id = db.Column(db.Integer, primary_key=True)
+    capacitacion_id = db.Column(
+        db.Integer, db.ForeignKey('capacitacion.id'), nullable=False
+    )
+    tipo = db.Column(db.String(20), nullable=False, default='archivo')
+    # tipo: 'link', 'archivo'
+    titulo = db.Column(db.String(200), nullable=False, default='')
+    url = db.Column(db.String(500), default='')  # Para links
+    archivo_path = db.Column(db.String(500), default='')  # Para archivos subidos
+    nombre_original = db.Column(db.String(300), default='')  # Nombre original del archivo
+    tipo_mime = db.Column(db.String(100), default='')  # MIME type
+    tamaño = db.Column(db.Integer, default=0)  # Tamaño en bytes
+    fecha_subida = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Material {self.tipo}: {self.titulo}>'
+
+    @property
+    def es_imagen(self):
+        return self.tipo_mime.startswith('image/')
+
+    @property
+    def es_video(self):
+        return self.tipo_mime.startswith('video/') or (
+            self.tipo == 'link' and ('youtube' in self.url.lower() or 'vimeo' in self.url.lower())
+        )
+
+    @property
+    def es_pdf(self):
+        return self.tipo_mime == 'application/pdf'
+
+    @property
+    def es_audio(self):
+        return self.tipo_mime.startswith('audio/')
+
+    @property
+    def icono_bootstrap(self):
+        """Retorna el icono de Bootstrap Icons según el tipo de archivo"""
+        if self.tipo == 'link':
+            return 'bi-link-45deg'
+        if self.es_video:
+            return 'bi-play-circle'
+        if self.es_imagen:
+            return 'bi-image'
+        if self.es_pdf:
+            return 'bi-file-pdf'
+        if self.es_audio:
+            return 'bi-music-note'
+        if 'word' in self.tipo_mime or 'document' in self.tipo_mime:
+            return 'bi-file-word'
+        if 'excel' in self.tipo_mime or 'spreadsheet' in self.tipo_mime:
+            return 'bi-file-excel'
+        if 'powerpoint' in self.tipo_mime or 'presentation' in self.tipo_mime:
+            return 'bi-file-ppt'
+        if 'zip' in self.tipo_mime or 'rar' in self.tipo_mime:
+            return 'bi-file-zip'
+        return 'bi-file-earmark'

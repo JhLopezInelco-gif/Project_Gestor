@@ -8,12 +8,12 @@ Rutas del Módulo Empleado
 """
 
 from flask import (Blueprint, render_template, redirect, url_for,
-                   request, flash, jsonify)
+                   request, flash, jsonify, send_from_directory, current_app)
 from flask_login import login_required, current_user
 from datetime import datetime
 import json
 from models import (db, Empleado, Capacitacion, Pregunta,
-                    ProgresoCapacitacion, Area)
+                    ProgresoCapacitacion, Area, MaterialCapacitacion)
 
 empleado_bp = Blueprint('empleado', __name__)
 
@@ -164,7 +164,11 @@ def calificar_evaluacion(capacitacion_id):
     calificacion = ProgresoCapacitacion.calcular_calificacion(
         respuestas_dadas, preguntas
     )
-    estado = ProgresoCapacitacion.determinar_estado(calificacion)
+    # Usar el porcentaje de aprobación definido por el gestor
+    porcentaje_req = cap.porcentaje_aprobacion or 80
+    estado = ProgresoCapacitacion.determinar_estado(
+        calificacion, porcentaje_req
+    )
 
     # Calcular detalle para mostrar
     correctas = 0
@@ -210,7 +214,7 @@ def calificar_evaluacion(capacitacion_id):
         flash(
             f'No aprobó. Calificación: {calificacion}% '
             f'({correctas}/{total} correctas). '
-            f'Se requiere mínimo 80% para aprobar. '
+            f'Se requiere mínimo {porcentaje_req}% para aprobar. '
             f'Puede intentar nuevamente.',
             'warning'
         )
@@ -255,3 +259,25 @@ def mi_progreso():
                            aprobados=aprobados,
                            pendientes=pendientes,
                            empleado=empleado)
+
+
+# ──────────────────────────────────────────────
+#  VISTA PREVIA DE MATERIAL (solo visualización, sin descarga)
+# ──────────────────────────────────────────────
+@empleado_bp.route('/material/<int:material_id>/preview')
+@login_required
+def preview_material(material_id):
+    """Vista previa de material para empleados (sin opción de descarga)"""
+    if current_user.role != 'Empleado':
+        flash('Acceso no autorizado.', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    material = MaterialCapacitacion.query.get_or_404(material_id)
+    upload_folder = current_app.config['UPLOAD_FOLDER']
+
+    # Servir archivo inline (el navegador lo muestra, no lo descarga)
+    return send_from_directory(
+        upload_folder,
+        material.archivo_path,
+        as_attachment=False  # False = vista previa, no descarga
+    )

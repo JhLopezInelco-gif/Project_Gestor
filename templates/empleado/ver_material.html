@@ -14,7 +14,7 @@
 
     <div class="row">
         <div class="col-md-8">
-            <div class="card-custom">
+            <div class="card-custom mb-4">
                 <div class="card-header">
                     <span class="badge-role me-2" style="background:#dbeafe;color:#1d4ed8;">
                         {{ capacitacion.area.nombre_area }}
@@ -25,17 +25,106 @@
                     <h5 class="mb-3">{{ capacitacion.titulo }}</h5>
                     <p class="text-muted">{{ capacitacion.descripcion }}</p>
 
+                    <!-- Link principal -->
                     {% if capacitacion.material_link %}
                     <div class="mt-4 p-4 text-center" style="background:#f8fafc;border-radius:12px;">
                         <i class="bi bi-link-45deg" style="font-size:2rem;color:var(--primary);"></i>
-                        <h6 class="mt-2">Material de Apoyo</h6>
-                        <p class="text-muted mb-3">Haga clic en el enlace para acceder al material.</p>
+                        <h6 class="mt-2">Enlace Principal</h6>
+                        <p class="text-muted mb-3">Haga clic para ver el material.</p>
                         <a href="{{ capacitacion.material_link }}" target="_blank"
                            class="btn btn-primary btn-lg">
-                            <i class="bi bi-box-arrow-up-right"></i> Abrir Material
+                            <i class="bi bi-box-arrow-up-right"></i> Ver Enlace
                         </a>
                     </div>
-                    {% else %}
+                    {% endif %}
+
+                    <!-- Materiales adjuntos -->
+                    {% set materiales = capacitacion.materiales %}
+                    {% if materiales|length > 0 %}
+                    <div class="mt-4">
+                        <h6 class="fw-semibold mb-3">
+                            <i class="bi bi-folder2-open"></i> Materiales Adjuntos ({{ materiales|length }})
+                        </h6>
+                        <div class="row">
+                            {% for mat in materiales %}
+                            <div class="col-md-6 mb-3">
+                                <div class="p-3" style="background:#f8fafc;border-radius:12px;height:100%;">
+                                    {% if mat.tipo == 'link' %}
+                                        <!-- Material tipo Link - Vista previa -->
+                                        <div class="text-center">
+                                            <i class="bi {{ mat.icono_bootstrap }}"
+                                               style="font-size:2.5rem;color:var(--primary);"></i>
+                                            <h6 class="mt-2">{{ mat.titulo }}</h6>
+                                            <a href="{{ mat.url }}" target="_blank"
+                                               class="btn btn-sm btn-outline-primary mt-2">
+                                                <i class="bi bi-eye"></i> Ver Enlace
+                                            </a>
+                                        </div>
+                                    {% elif mat.es_pdf %}
+                                        <!-- Material tipo PDF - Vista previa embebida -->
+                                        <div class="text-center">
+                                            <i class="bi bi-file-pdf" style="font-size:2.5rem;color:#dc3545;"></i>
+                                            <h6 class="mt-2">{{ mat.nombre_original }}</h6>
+                                            <small class="text-muted">{{ '%.1f' | format(mat.tamaño / 1024 / 1024) }} MB</small>
+                                            <br>
+                                            <button type="button" class="btn btn-sm btn-outline-primary mt-2"
+                                                    onclick="previewPDF('{{ mat.id }}', '{{ mat.nombre_original }}')">
+                                                <i class="bi bi-eye"></i> Vista Previa
+                                            </button>
+                                        </div>
+                                    {% elif mat.es_imagen %}
+                                        <!-- Material tipo Imagen - Vista previa inline -->
+                                        <div class="text-center">
+                                            <img src="{{ url_for('empleado.preview_material', material_id=mat.id) }}"
+                                                 alt="{{ mat.nombre_original }}"
+                                                 style="max-width:100%;max-height:200px;border-radius:8px;object-fit:contain;">
+                                            <h6 class="mt-2">{{ mat.nombre_original }}</h6>
+                                            <small class="text-muted">{{ '%.1f' | format(mat.tamaño / 1024 / 1024) }} MB</small>
+                                        </div>
+                                    {% elif mat.es_video %}
+                                        <!-- Material tipo Video - Reproductor embebido -->
+                                        <div class="text-center">
+                                            <video controls style="max-width:100%;max-height:200px;border-radius:8px;">
+                                                <source src="{{ url_for('empleado.preview_material', material_id=mat.id) }}"
+                                                        type="{{ mat.tipo_mime }}">
+                                                Su navegador no soporta video.
+                                            </video>
+                                            <h6 class="mt-2">{{ mat.nombre_original }}</h6>
+                                            <small class="text-muted">{{ '%.1f' | format(mat.tamaño / 1024 / 1024) }} MB</small>
+                                        </div>
+                                    {% elif mat.es_audio %}
+                                        <!-- Material tipo Audio - Reproductor embebido -->
+                                        <div class="text-center">
+                                            <i class="bi bi-music-note" style="font-size:2.5rem;color:var(--primary);"></i>
+                                            <h6 class="mt-2">{{ mat.nombre_original }}</h6>
+                                            <audio controls class="mt-2" style="width:100%;">
+                                                <source src="{{ url_for('empleado.preview_material', material_id=mat.id) }}"
+                                                        type="{{ mat.tipo_mime }}">
+                                                Su navegador no soporta audio.
+                                            </audio>
+                                        </div>
+                                    {% else %}
+                                        <!-- Otro tipo de archivo - Solo info -->
+                                        <div class="text-center">
+                                            <i class="bi {{ mat.icono_bootstrap }}"
+                                               style="font-size:2.5rem;color:var(--primary);"></i>
+                                            <h6 class="mt-2">{{ mat.nombre_original }}</h6>
+                                            <small class="text-muted">{{ '%.1f' | format(mat.tamaño / 1024 / 1024) }} MB</small>
+                                            <br>
+                                            <small class="text-muted mt-2 d-block">
+                                                <i class="bi bi-eye-slash"></i> Vista previa no disponible para este formato
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Sin material -->
+                    {% if not capacitacion.material_link and materiales|length == 0 %}
                     <div class="mt-4 p-4 text-center" style="background:#f8fafc;border-radius:12px;">
                         <i class="bi bi-x-circle" style="font-size:2rem;color:var(--gray);"></i>
                         <h6 class="mt-2 text-muted">Sin material adjunto</h6>
@@ -47,7 +136,7 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card-custom">
+            <div class="card-custom mb-4">
                 <div class="card-header">
                     <i class="bi bi-info-circle"></i> Información
                 </div>
@@ -66,11 +155,23 @@
                             <td class="fw-semibold">{{ capacitacion.preguntas | length }}</td>
                         </tr>
                         <tr>
+                            <td class="text-muted">Materiales</td>
+                            <td class="fw-semibold">{{ capacitacion.materiales | length }} archivos</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Aprobación</td>
+                            <td>
+                                <span class="fw-bold" style="color:var(--primary);">
+                                    Mín. {{ capacitacion.porcentaje_aprobacion }}%
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
                             <td class="text-muted">Estado</td>
                             <td>
                                 {% if progreso %}
                                     {% if progreso.estado == 'Aprobado' %}
-                                        <span class="badge-estado badge-aprobado">✓ Aprobado ({{ progreso.calificacion }}%)</span>
+                                        <span class="badge-estado badge-aprobado">Aprobado ({{ progreso.calificacion }}%)</span>
                                     {% else %}
                                         <span class="badge-estado badge-pendiente">Pendiente ({{ progreso.calificacion }}%)</span>
                                     {% endif %}
@@ -98,4 +199,28 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Vista Previa PDF -->
+<div class="modal fade" id="pdfPreviewModal" tabindex="-1" style="z-index:99999;">
+    <div class="modal-dialog modal-xl" style="height:90vh;">
+        <div class="modal-content" style="height:100%;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfPreviewTitle">Vista Previa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0" style="height:calc(100% - 56px);">
+                <iframe id="pdfPreviewFrame" style="width:100%;height:100%;border:none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewPDF(materialId, filename) {
+    const url = '{{ url_for("empleado.preview_material", material_id=0) }}'.replace('0', materialId);
+    document.getElementById('pdfPreviewFrame').src = url;
+    document.getElementById('pdfPreviewTitle').textContent = 'Vista Previa - ' + filename;
+    new bootstrap.Modal(document.getElementById('pdfPreviewModal')).show();
+}
+</script>
 {% endblock %}

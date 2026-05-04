@@ -43,7 +43,7 @@
                         <select name="area_id" class="form-select" required>
                             <option value="">-- Seleccionar Área --</option>
                             {% for area in areas %}
-                            <option value="{{ area.id }}" {% if area.id == gestor.area_id %}selected{% endif %}>
+                            <option value="{{ area.id }}" {% if area.id == gestor.area_id %}selected{% endif %}> 
                                 {{ area.nombre_area }}
                             </option>
                             {% endfor %}

@@ -48,7 +48,7 @@
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <div class="stat-icon bg-gradient-1"><i class="bi bi-percent"></i></div>
                 </div>
-                <div class="stat-number" style="color:#6366f1;">{{ stats.tasa_aprobacion }}%</div>
+                <div class="stat-number" style="color:#D60000;">{{ stats.tasa_aprobacion }}%</div>
                 <div class="stat-label">Tasa Aprobación General</div>
             </div>
         </div>
@@ -88,7 +88,7 @@
                         <td><strong>{{ sa.area }}</strong></td>
                         <td>
                             {% for g in sa.gestores %}
-                            <span class="badge-role" style="background:#ede9fe;color:#6366f1;">{{ g }}</span>
+                            <span class="badge-role" style="background:#FFCDD2;color:#D60000;">{{ g }}</span>
                             {% if not loop.last %}<br>{% endif %}
                             {% endfor %}
                             {% if not sa.gestores %}
@@ -196,7 +196,7 @@
                         </td>
                         <td>{{ emp.cargo }}</td>
                         <td class="text-center">
-                            <span class="fw-bold" style="color:#6366f1;">{{ emp.total_disponibles }}</span>
+                            <span class="fw-bold" style="color:#D60000;">{{ emp.total_disponibles }}</span>
                         </td>
                         <td class="text-center">{{ emp.total_realizados }}</td>
                         <td class="text-center">

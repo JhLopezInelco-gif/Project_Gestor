@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Reportes FGH-22{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4><i class="bi bi-file-earmark-text"></i> Reportes FGH-22 — Entrenamiento en el Puesto de Trabajo</h4>
+        <a href="{{ url_for('rrhh.crear_reporte_control') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nuevo Reporte
+        </a>
+    </div>
+
+    {% if reportes %}
+    <div class="card-custom">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" style="font-size:0.88rem;">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Empleado</th>
+                        <th>Cargo</th>
+                        <th>Dependencia</th>
+                        <th>Fecha Ingreso</th>
+                        <th>Estado</th>
+                        <th>Creado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reportes %}
+                    <tr>
+                        <td>
+                            <span class="fw-bold" style="color:#D60000;">{{ r.codigo_completo }}</span>
+                        </td>
+                        <td class="fw-bold">{{ r.nombres_apellidos }}</td>
+                        <td>{{ r.cargo_desempenar }}</td>
+                        <td>{{ r.dependencia }}</td>
+                        <td>{{ r.fecha_ingreso.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            {% if r.estado == 'Aprobado' %}
+                            <span class="badge-estado badge-aprobado">Aprobado</span>
+                            {% elif r.estado == 'Completado' %}
+                            <span class="badge-estado" style="background:#e3f2fd;color:#1565c0;">Completado</span>
+                            {% else %}
+                            <span class="badge-estado" style="background:#fff3e0;color:#E65100;">En Proceso</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:0.78rem; color:#999;">
+                            {{ r.fecha_creacion.strftime('%d/%m/%Y') }}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('rrhh.ver_reporte_control', reporte_id=r.id) }}"
+                               class="btn btn-sm btn-outline-primary" title="Ver">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{{ url_for('rrhh.editar_reporte_control', reporte_id=r.id) }}"
+                               class="btn btn-sm btn-outline-warning" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if current_user.role in ('RRHH', 'Admin') %}
+                            <form method="POST" action="{{ url_for('rrhh.eliminar_reporte_control', reporte_id=r.id) }}"
+                                  style="display:inline;"
+                                  onsubmit="return confirm('¿Eliminar reporte {{ r.codigo_completo }}?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center mt-5">
+        <i class="bi bi-inbox" style="font-size:4rem; color:#ddd;"></i>
+        <h5 class="text-muted mt-3">No hay reportes FGH-22 registrados</h5>
+        <a href="{{ url_for('rrhh.crear_reporte_control') }}" class="btn btn-primary mt-2">
+            <i class="bi bi-plus-circle"></i> Crear Primer Reporte
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

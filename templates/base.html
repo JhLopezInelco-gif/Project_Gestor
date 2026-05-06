@@ -90,6 +90,9 @@
         <a href="{{ url_for('rrhh.reporte') }}" class="nav-link">
             <i class="bi bi-graph-up"></i> Reportes
         </a>
+        <a href="{{ url_for('rrhh.listar_reportes_control') }}" class="nav-link">
+            <i class="bi bi-file-earmark-text"></i> Reportes FGH-22
+        </a>
 
         {% elif current_user.role == 'Gestor' %}
         <div class="sidebar-heading">Gestión</div>
@@ -107,6 +110,9 @@
         </a>
         <a href="{{ url_for('documentos.subir') }}" class="nav-link">
             <i class="bi bi-upload"></i> Subir Documento
+        </a>
+        <a href="{{ url_for('rrhh.listar_reportes_control') }}" class="nav-link">
+            <i class="bi bi-file-earmark-text"></i> Reportes FGH-22
         </a>
 
         {% elif current_user.role == 'Empleado' %}
@@ -134,6 +140,9 @@
         </a>
         <a href="{{ url_for('rrhh.reporte') }}" class="nav-link">
             <i class="bi bi-graph-up"></i> Reportes
+        </a>
+        <a href="{{ url_for('rrhh.listar_reportes_control') }}" class="nav-link">
+            <i class="bi bi-file-earmark-text"></i> Reportes FGH-22
         </a>
         <a href="{{ url_for('documentos.listar') }}" class="nav-link">
             <i class="bi bi-folder2-open"></i> Documentos

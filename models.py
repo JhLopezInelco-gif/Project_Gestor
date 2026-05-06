@@ -293,3 +293,83 @@ class MaterialCapacitacion(db.Model):
         if 'zip' in self.tipo_mime or 'rar' in self.tipo_mime:
             return 'bi-file-zip'
         return 'bi-file-earmark'
+
+
+# ──────────────────────────────────────────────
+#  REPORTE FGH-22: ENTRENAMIENTO EN EL PUESTO DE TRABAJO
+# ──────────────────────────────────────────────
+class ReporteControl(db.Model):
+    __tablename__ = 'reporte_control'
+
+    # Metadatos estáticos del formulario
+    EMPRESA = 'INELCO'
+    TITULO = 'ENTRENAMIENTO EN EL PUESTO DE TRABAJO'
+    CODIGO = 'FGH-22'
+    VERSION = '02'
+    FECHA_FORMULARIO = '24-04-2025'
+
+    id = db.Column(db.Integer, primary_key=True)
+    consecutivo = db.Column(db.Integer, nullable=False, unique=True)
+
+    # Sección I: INFORMACIÓN BÁSICA
+    empleado_id = db.Column(db.Integer, db.ForeignKey('empleado.id'), nullable=False)
+    nombres_apellidos = db.Column(db.String(200), nullable=False, default='')
+    fecha_ingreso = db.Column(db.Date, nullable=False)
+    cargo_desempenar = db.Column(db.String(150), nullable=False, default='')
+    vinculacion = db.Column(db.Boolean, default=False)
+    dependencia = db.Column(db.String(150), nullable=False, default='')
+
+    # Estado del reporte
+    estado = db.Column(db.String(30), nullable=False, default='En Proceso')
+    # Estados: En Proceso, Completado, Aprobado
+
+    # Auditoría
+    creado_por = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow)
+    fecha_cierre = db.Column(db.DateTime, nullable=True)
+
+    # Relaciones
+    empleado = db.relationship('Empleado', foreign_keys=[empleado_id])
+    user = db.relationship('User', foreign_keys=[creado_por])
+    cronograma = db.relationship(
+        'CronogramaItem', backref='reporte', lazy=True,
+        cascade='all, delete-orphan',
+        order_by='CronogramaItem.seccion, CronogramaItem.posicion'
+    )
+
+    def __repr__(self):
+        return f'<ReporteControl {self.CODIGO}-{self.consecutivo:04d}>'
+
+    @property
+    def codigo_completo(self):
+        return f'{self.CODIGO}-{self.consecutivo:04d}'
+
+    # Temas predefinidos Sección II
+    TEMAS_PREDEFINIDOS = [
+        'Bienvenida al área',
+        'Capacitación en el sistema de Gestión de Calidad',
+        'Presentación del equipo de trabajo',
+        'Entrega del puesto y herramientas de trabajo (Usuario, programas y sistemas)',
+        'Socialización de funciones o actividades a desarrollar',
+        'Socialización de Proceso - Subprocesos y Procedimientos en los cuales participa',
+        'Entrenamiento en Seguridad y Salud en el Trabajo',
+    ]
+
+
+class CronogramaItem(db.Model):
+    __tablename__ = 'cronograma_item'
+
+    id = db.Column(db.Integer, primary_key=True)
+    reporte_id = db.Column(
+        db.Integer, db.ForeignKey('reporte_control.id'), nullable=False
+    )
+    seccion = db.Column(db.String(5), nullable=False, default='II')
+    # Sección II (predefinidos) o Sección III (temas específicos)
+    posicion = db.Column(db.Integer, nullable=False, default=0)
+    tema = db.Column(db.String(300), nullable=False, default='')
+    fecha_realizacion = db.Column(db.Date, nullable=True)
+    entrenador_asignado = db.Column(db.String(200), default='')
+    firma_entrenador = db.Column(db.String(200), default='')
+
+    def __repr__(self):
+        return f'<CronogramaItem R{self.reporte_id} S{self.seccion} {self.tema[:30]}>'

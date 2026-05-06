@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Reporte {{ reporte.codigo_completo }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        .no-print { display: none !important; }
+        .sidebar, .navbar-custom, .footer { display: none !important; }
+        .main-content { margin: 0 !important; padding: 15px !important; }
+        body { background: #fff; font-size: 11px; }
+    }
+    .fgh-header { border: 2px solid #000; }
+    .fgh-header-table { width: 100%; border-collapse: collapse; }
+    .fgh-header-table td { padding: 6px 10px; vertical-align: middle; }
+    .fgh-meta { font-size: 0.75rem; text-align: center; border: 1px solid #333; padding: 2px 8px; }
+    .fgh-meta-label { font-weight: 300; font-size: 0.65rem; text-transform: uppercase; }
+    .fgh-meta-value { font-weight: 800; font-size: 0.85rem; }
+    .fgh-section { background: #333; color: #fff; padding: 6px 12px; font-weight: 700;
+                   font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+                   border-radius: 4px 4px 0 0; margin-top: 1rem; }
+    .fgh-table { width: 100%; border-collapse: collapse; border: 2px solid #333; }
+    .fgh-table th { background: #f0f0f0; border: 1px solid #333; padding: 6px 8px;
+                    font-size: 0.78rem; font-weight: 700; text-align: center; }
+    .fgh-table td { border: 1px solid #333; padding: 6px 8px; font-size: 0.85rem; }
+    .fgh-footer { border-top: 2px solid #333; padding: 8px; text-align: center;
+                  font-size: 0.7rem; color: #999; font-style: italic; margin-top: 1rem; }
+    .field-label-sm { font-size: 0.75rem; font-weight: 700; color: #555; margin-bottom: 2px; }
+    .field-value { font-size: 0.9rem; border-bottom: 1px solid #333; padding: 2px 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width:1100px;">
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i> Reporte {{ reporte.codigo_completo }}</h5>
+        <div>
+            <button type="button" class="btn btn-outline-secondary btn-sm me-2" onclick="window.print()">
+                <i class="bi bi-printer"></i> Imprimir
+            </button>
+            <a href="{{ url_for('rrhh.editar_reporte_control', reporte_id=reporte.id) }}" class="btn btn-warning btn-sm me-2">
+                <i class="bi bi-pencil"></i> Editar
+            </a>
+            <a href="{{ url_for('rrhh.listar_reportes_control') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- ENCABEZADO INSTITUCIONAL -->
+    <div class="card-custom mb-0">
+        <div class="fgh-header">
+            <table class="fgh-header-table">
+                <tr>
+                    <td style="width:40%; border-right:2px solid #000;">
+                        <div style="font-size:1.2rem; font-weight:900; color:#D60000;">INELCO</div>
+                    </td>
+                    <td style="text-align:center; border-right:2px solid #000;">
+                        <div style="font-size:0.95rem; font-weight:700; text-transform:uppercase;">
+                            ENTRENAMIENTO EN EL PUESTO DE TRABAJO
+                        </div>
+                        <div style="font-size:0.7rem; color:#D60000; font-weight:700;">
+                            {{ reporte.codigo_completo }}
+                        </div>
+                    </td>
+                    <td style="width:25%; text-align:center;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <tr><td class="fgh-meta"><div class="fgh-meta-label">Código</div><div class="fgh-meta-value">FGH-22</div></td></tr>
+                            <tr><td class="fgh-meta"><div class="fgh-meta-label">Versión</div><div class="fgh-meta-value">02</div></td></tr>
+                            <tr><td class="fgh-meta"><div class="fgh-meta-label">Fecha</div><div class="fgh-meta-value">24-04-2025</div></td></tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- SECCIÓN I -->
+    <div class="fgh-section"><i class="bi bi-person-vcard"></i> Sección I: Información Básica</div>
+    <div style="border:2px solid #333; border-top:none; padding:15px;">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="field-label-sm">Nombres y Apellidos</div>
+                <div class="field-value fw-bold">{{ reporte.nombres_apellidos }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="field-label-sm">Fecha de Ingreso</div>
+                <div class="field-value">{{ reporte.fecha_ingreso.strftime('%d/%m/%Y') }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="field-label-sm">Cargo a Desempeñar</div>
+                <div class="field-value">{{ reporte.cargo_desempenar }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="field-label-sm">Vinculación</div>
+                <div class="field-value">
+                    {% if reporte.vinculacion %}<span class="text-success fw-bold">✓ Activo</span>
+                    {% else %}<span class="text-muted">No vinculado</span>{% endif %}
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="field-label-sm">Dependencia</div>
+                <div class="field-value">{{ reporte.dependencia }}</div>
+            </div>
+            <div class="col-md-3">
+                <div class="field-label-sm">Estado</div>
+                <div class="field-value">
+                    {% if reporte.estado == 'Aprobado' %}
+                    <span class="badge-estado badge-aprobado">Aprobado</span>
+                    {% elif reporte.estado == 'Completado' %}
+                    <span class="badge-estado" style="background:#e3f2fd;color:#1565c0;">Completado</span>
+                    {% else %}
+                    <span class="badge-estado" style="background:#fff3e0;color:#E65100;">En Proceso</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN II -->
+    <div class="fgh-section"><i class="bi bi-calendar3"></i> Sección II: Cronograma</div>
+    <table class="fgh-table">
+        <thead>
+            <tr>
+                <th style="width:5%;">#</th>
+                <th style="width:45%;">TEMAS A DESARROLLAR</th>
+                <th style="width:20%;">FECHA DE REALIZACIÓN</th>
+                <th style="width:30%;">ENTRENADOR ASIGNADO</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cronograma_ii %}
+            <tr>
+                <td style="text-align:center; font-weight:700;">{{ loop.index }}</td>
+                <td>{{ item.tema }}</td>
+                <td style="text-align:center;">
+                    {{ item.fecha_realizacion.strftime('%d/%m/%Y') if item.fecha_realizacion else '—' }}
+                </td>
+                <td>{{ item.entrenador_asignado or '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- SECCIÓN III -->
+    {% if cronograma_iii %}
+    <div class="fgh-section"><i class="bi bi-list-check"></i> Sección III: Temas Específicos de la Dependencia y del Rol</div>
+    <table class="fgh-table">
+        <thead>
+            <tr>
+                <th style="width:5%;">#</th>
+                <th style="width:45%;">TEMA ESPECÍFICO</th>
+                <th style="width:20%;">FECHA DE REALIZACIÓN</th>
+                <th style="width:30%;">ENTRENADOR ASIGNADO</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cronograma_iii %}
+            <tr>
+                <td style="text-align:center; font-weight:700;">{{ loop.index }}</td>
+                <td>{{ item.tema }}</td>
+                <td style="text-align:center;">
+                    {{ item.fecha_realizacion.strftime('%d/%m/%Y') if item.fecha_realizacion else '—' }}
+                </td>
+                <td>{{ item.entrenador_asignado or '—' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    <!-- PIE DE PÁGINA -->
+    <div class="fgh-footer">
+        Este es un documento controlado, una vez se descargue o se imprima se considera NO CONTROLADO
+    </div>
+
+    <div class="text-center mt-2 mb-2" style="font-size:0.7rem; color:#999;">
+        Creado: {{ reporte.fecha_creacion.strftime('%d/%m/%Y %H:%M') }} · Por: {{ reporte.user.nombre_completo }}
+    </div>
+</div>
+{% endblock %}

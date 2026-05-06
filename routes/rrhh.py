@@ -7,10 +7,11 @@ Rutas del Módulo RRHH
 - Filtros por área y estado
 """
 
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
+from datetime import datetime, date
 from models import (db, Empleado, Capacitacion, ProgresoCapacitacion,
-                    Area, User, Gestor)
+                    Area, User, Gestor, ReporteControl, CronogramaItem)
 
 rrhh_bp = Blueprint('rrhh', __name__)
 
@@ -241,3 +242,266 @@ def reporte():
         })
 
     return render_template('rrhh/reporte.html', reporte_areas=reporte_areas)
+
+
+# ──────────────────────────────────────────────
+#  REPORTES DE CONTROL FGH-22
+# ──────────────────────────────────────────────
+def _check_reporte_access():
+    """Check if user can manage reportes (RRHH, Admin, Gestor)"""
+    return current_user.role in ('RRHH', 'Admin', 'Gestor')
+
+
+def _get_cronograma(reporte):
+    """Split cronograma items into Section II and III"""
+    if reporte:
+        cronograma_ii = [c for c in reporte.cronograma if c.seccion == 'II']
+        cronograma_iii = [c for c in reporte.cronograma if c.seccion == 'III']
+    else:
+        cronograma_ii = []
+        cronograma_iii = []
+    return cronograma_ii, cronograma_iii
+
+
+def _save_cronograma(reporte_id, form, is_edit=False):
+    """Save/update cronograma items from form data"""
+    # Sección II: predefinidos
+    for i, tema in enumerate(ReporteControl.TEMAS_PREDEFINIDOS):
+        fecha_str = form.get(f'fecha_ii_{i}', '')
+        fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else None
+        entrenador = form.get(f'entrenador_ii_{i}', '').strip()
+        firma = form.get(f'firma_ii_{i}', '').strip()
+
+        if is_edit:
+            item = CronogramaItem.query.filter_by(
+                reporte_id=reporte_id, seccion='II', posicion=i
+            ).first()
+            if item:
+                item.fecha_realizacion = fecha
+                item.entrenador_asignado = entrenador
+                item.firma_entrenador = firma
+                continue
+
+        db.session.add(CronogramaItem(
+            reporte_id=reporte_id, seccion='II', posicion=i,
+            tema=tema, fecha_realizacion=fecha,
+            entrenador_asignado=entrenador, firma_entrenador=firma
+        ))
+
+    # Sección III: temas específicos (dinámicos)
+    if is_edit:
+        CronogramaItem.query.filter_by(
+            reporte_id=reporte_id, seccion='III'
+        ).delete()
+
+    total_iii = form.get('total_filas_iii', 0, type=int)
+    for i in range(total_iii):
+        tema = form.get(f'tema_iii_{i}', '').strip()
+        if not tema:
+            continue
+        fecha_str = form.get(f'fecha_iii_{i}', '')
+        fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else None
+        entrenador = form.get(f'entrenador_iii_{i}', '').strip()
+        firma = form.get(f'firma_iii_{i}', '').strip()
+
+        db.session.add(CronogramaItem(
+            reporte_id=reporte_id, seccion='III', posicion=i,
+            tema=tema, fecha_realizacion=fecha,
+            entrenador_asignado=entrenador, firma_entrenador=firma
+        ))
+
+
+@rrhh_bp.route('/rrhh/reportes-control')
+@login_required
+def listar_reportes_control():
+    if not _check_reporte_access():
+        flash('Acceso no autorizado.', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    reportes = ReporteControl.query.order_by(
+        ReporteControl.fecha_creacion.desc()
+    ).all()
+    return render_template('rrhh/listar_reportes.html', reportes=reportes)
+
+
+@rrhh_bp.route('/rrhh/reportes-control/crear', methods=['GET', 'POST'])
+@login_required
+def crear_reporte_control():
+    if not _check_reporte_access():
+        flash('Acceso no autorizado.', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    empleados = Empleado.query.all()
+    gestores = Gestor.query.all()
+
+    if request.method == 'POST':
+        empleado_id = request.form.get('empleado_id', type=int)
+        fecha_str = request.form.get('fecha_ingreso', '')
+        try:
+            fecha_ingreso = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+        except ValueError:
+            flash('Fecha de ingreso inválida.', 'warning')
+            return render_template('rrhh/reporte_control.html',
+                                   reporte=None, empleados=empleados,
+                                   gestores=gestores,
+                                   cronograma_ii=[], cronograma_iii=[])
+
+        # Auto-incrementar consecutivo
+        ultimo = ReporteControl.query.order_by(
+            ReporteControl.consecutivo.desc()
+        ).first()
+        consecutivo = (ultimo.consecutivo + 1) if ultimo else 1
+
+        vinculacion = 'vinculacion' in request.form
+
+        reporte = ReporteControl(
+            consecutivo=consecutivo,
+            empleado_id=empleado_id,
+            nombres_apellidos=request.form.get('nombres_apellidos', '').strip(),
+            fecha_ingreso=fecha_ingreso,
+            cargo_desempenar=request.form.get('cargo_desempenar', '').strip(),
+            vinculacion=vinculacion,
+            dependencia=request.form.get('dependencia', '').strip(),
+            estado='En Proceso',
+            creado_por=current_user.id
+        )
+        db.session.add(reporte)
+        db.session.flush()  # Obtener ID
+
+        _save_cronograma(reporte.id, request.form)
+        db.session.commit()
+
+        flash(f'Reporte {reporte.codigo_completo} creado correctamente.', 'success')
+        return redirect(url_for('rrhh.listar_reportes_control'))
+
+    return render_template('rrhh/reporte_control.html',
+                           reporte=None, empleados=empleados,
+                           gestores=gestores,
+                           cronograma_ii=[], cronograma_iii=[],
+                           temas_predefinidos=ReporteControl.TEMAS_PREDEFINIDOS)
+
+
+@rrhh_bp.route('/rrhh/reportes-control/<int:reporte_id>')
+@login_required
+def ver_reporte_control(reporte_id):
+    if not _check_reporte_access():
+        flash('Acceso no autorizado.', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    reporte = ReporteControl.query.get_or_404(reporte_id)
+    cronograma_ii, cronograma_iii = _get_cronograma(reporte)
+    return render_template('rrhh/ver_reporte.html',
+                           reporte=reporte,
+                           cronograma_ii=cronograma_ii,
+                           cronograma_iii=cronograma_iii)
+
+
+@rrhh_bp.route('/rrhh/reportes-control/<int:reporte_id>/editar',
+               methods=['GET', 'POST'])
+@login_required
+def editar_reporte_control(reporte_id):
+    if not _check_reporte_access():
+        flash('Acceso no autorizado.', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    reporte = ReporteControl.query.get_or_404(reporte_id)
+    gestores = Gestor.query.all()
+    cronograma_ii, cronograma_iii = _get_cronograma(reporte)
+
+    if request.method == 'POST':
+        fecha_str = request.form.get('fecha_ingreso', '')
+        try:
+            reporte.fecha_ingreso = datetime.strptime(fecha_str, '%Y-%m-%d').date()
+        except ValueError:
+            flash('Fecha inválida.', 'warning')
+            return render_template('rrhh/reporte_control.html',
+                                   reporte=reporte, empleados=[],
+                                   gestores=gestores,
+                                   cronograma_ii=cronograma_ii,
+                                   cronograma_iii=cronograma_iii)
+
+        reporte.nombres_apellidos = request.form.get('nombres_apellidos', '').strip()
+        reporte.cargo_desempenar = request.form.get('cargo_desempenar', '').strip()
+        reporte.vinculacion = 'vinculacion' in request.form
+        reporte.dependencia = request.form.get('dependencia', '').strip()
+        reporte.estado = request.form.get('estado', 'En Proceso')
+
+        if reporte.estado == 'Aprobado' and not reporte.fecha_cierre:
+            reporte.fecha_cierre = datetime.utcnow()
+
+        # Delete old cronograma and save new
+        CronogramaItem.query.filter_by(reporte_id=reporte.id).delete()
+        _save_cronograma(reporte.id, request.form, is_edit=False)
+
+        db.session.commit()
+        flash(f'Reporte {reporte.codigo_completo} actualizado.', 'success')
+        return redirect(url_for('rrhh.listar_reportes_control'))
+
+    return render_template('rrhh/reporte_control.html',
+                           reporte=reporte, empleados=[],
+                           gestores=gestores,
+                           cronograma_ii=cronograma_ii,
+                           cronograma_iii=cronograma_iii)
+
+
+@rrhh_bp.route('/rrhh/api/empleado/<int:empleado_id>/capacitaciones-aprobadas')
+@login_required
+def capacitaciones_aprobadas(empleado_id):
+    """Retorna las capacitaciones aprobadas del empleado con tema, gestor y área."""
+    if not _check_reporte_access():
+        return jsonify({'error': 'Acceso no autorizado'}), 403
+
+    # Buscar capacitaciones aprobadas del empleado
+    progresos = ProgresoCapacitacion.query.filter(
+        ProgresoCapacitacion.empleado_id == empleado_id,
+        ProgresoCapacitacion.estado == 'Aprobado'
+    ).all()
+
+    capacitaciones_data = []
+    gestores_vistos = set()
+
+    for p in progresos:
+        cap = Capacitacion.query.get(p.capacitacion_id)
+        if not cap:
+            continue
+        gestor = Gestor.query.get(cap.gestor_id)
+        if not gestor:
+            continue
+
+        user = User.query.get(gestor.user_id)
+        area = Area.query.get(cap.area_id)
+
+        nombre_gestor = user.nombre_completo if user else 'N/A'
+        nombre_area = area.nombre_area if area else 'N/A'
+
+        capacitaciones_data.append({
+            'tema': cap.titulo,
+            'gestor': nombre_gestor,
+            'area': nombre_area,
+            'fecha': p.fecha_completado.strftime('%Y-%m-%d') if p.fecha_completado else ''
+        })
+
+        # Registrar gestores únicos para el datalist
+        gestores_vistos.add(nombre_gestor)
+
+    return jsonify({
+        'capacitaciones': capacitaciones_data,
+        'gestores': list(gestores_vistos),
+        'area_principal': capacitaciones_data[0]['area'] if capacitaciones_data else ''
+    })
+
+
+@rrhh_bp.route('/rrhh/reportes-control/<int:reporte_id>/eliminar',
+               methods=['POST'])
+@login_required
+def eliminar_reporte_control(reporte_id):
+    if current_user.role not in ('RRHH', 'Admin'):
+        flash('Solo RRHH o Admin pueden eliminar reportes.', 'danger')
+        return redirect(url_for('rrhh.listar_reportes_control'))
+
+    reporte = ReporteControl.query.get_or_404(reporte_id)
+    codigo = reporte.codigo_completo
+    db.session.delete(reporte)
+    db.session.commit()
+    flash(f'Reporte {codigo} eliminado.', 'info')
+    return redirect(url_for('rrhh.listar_reportes_control'))

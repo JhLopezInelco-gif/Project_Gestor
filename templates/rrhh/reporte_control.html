@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if reporte else 'Nuevo' }} Reporte FGH-22{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media print {
+        .no-print { display: none !important; }
+        .sidebar, .navbar-custom, .footer { display: none !important; }
+        .main-content { margin: 0 !important; padding: 15px !important; }
+        body { background: #fff; font-size: 11px; }
+        .fgh-table th, .fgh-table td { font-size: 10px; padding: 4px 6px; }
+        .card-custom { box-shadow: none; border: 1px solid #999; }
+    }
+    .fgh-header { border: 2px solid #000; }
+    .fgh-header-table { width: 100%; border-collapse: collapse; }
+    .fgh-header-table td { padding: 6px 10px; vertical-align: middle; }
+    .fgh-meta { font-size: 0.75rem; text-align: center; border: 1px solid #333; padding: 2px 8px; }
+    .fgh-meta-label { font-weight: 300; font-size: 0.65rem; text-transform: uppercase; }
+    .fgh-meta-value { font-weight: 800; font-size: 0.85rem; }
+    .fgh-section { background: #333; color: #fff; padding: 6px 12px; font-weight: 700;
+                   font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+                   border-radius: 4px 4px 0 0; margin-top: 1rem; }
+    .fgh-table { width: 100%; border-collapse: collapse; border: 2px solid #333; }
+    .fgh-table th { background: #f0f0f0; border: 1px solid #333; padding: 6px 8px;
+                    font-size: 0.78rem; font-weight: 700; text-align: center; }
+    .fgh-table td { border: 1px solid #333; padding: 4px 8px; font-size: 0.85rem; }
+    .fgh-table input, .fgh-table select { border: none; border-bottom: 1px dotted #999;
+                                          width: 100%; padding: 2px; font-size: 0.85rem;
+                                          background: transparent; }
+    .fgh-table input:focus, .fgh-table select:focus { outline: none; border-bottom-color: #007bff; }
+    .fgh-footer { border-top: 2px solid #333; padding: 8px; text-align: center;
+                  font-size: 0.7rem; color: #999; font-style: italic; margin-top: 1rem; }
+    .field-label-sm { font-size: 0.75rem; font-weight: 700; color: #555; margin-bottom: 2px; }
+    .field-input { border: none; border-bottom: 1px solid #333; width: 100%; padding: 2px 4px;
+                   font-size: 0.9rem; background: transparent; }
+    .field-input:focus { outline: none; border-bottom-color: #007bff; }
+    .checkbox-custom { width: 18px; height: 18px; cursor: pointer; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width:1100px;">
+    <!-- Botones superiores -->
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-text"></i>
+            {{ 'Editar' if reporte else 'Nuevo' }} Formato FGH-22
+        </h5>
+        <div>
+            <button type="button" class="btn btn-outline-secondary btn-sm me-2" onclick="window.print()">
+                <i class="bi bi-printer"></i> Imprimir
+            </button>
+            <a href="{{ url_for('rrhh.listar_reportes_control') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <form method="POST" id="formFGH22">
+        <!-- ════════════════════════════════════════════
+             ENCABEZADO INSTITUCIONAL
+             ════════════════════════════════════════════ -->
+        <div class="card-custom mb-0">
+            <div class="fgh-header">
+                <table class="fgh-header-table">
+                    <tr>
+                        <td style="width:40%; border-right:2px solid #000;">
+                            <div style="font-size:1.2rem; font-weight:900; color:#D60000;">
+                                INELCO
+                            </div>
+                            <div style="font-size:0.7rem; color:#666;">
+                                {{ reporte.EMPRESA if reporte else 'INELCO' }}
+                            </div>
+                        </td>
+                        <td style="text-align:center; border-right:2px solid #000;">
+                            <div style="font-size:0.95rem; font-weight:700; text-transform:uppercase;">
+                                ENTRENAMIENTO EN EL PUESTO DE TRABAJO
+                            </div>
+                            {% if reporte %}
+                            <div style="font-size:0.7rem; color:#D60000; font-weight:700;">
+                                {{ reporte.codigo_completo }}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td style="width:25%; text-align:center;">
+                            <table style="width:100%; border-collapse:collapse;">
+                                <tr>
+                                    <td class="fgh-meta">
+                                        <div class="fgh-meta-label">Código</div>
+                                        <div class="fgh-meta-value">FGH-22</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fgh-meta">
+                                        <div class="fgh-meta-label">Versión</div>
+                                        <div class="fgh-meta-value">02</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="fgh-meta">
+                                        <div class="fgh-meta-label">Fecha</div>
+                                        <div class="fgh-meta-value">24-04-2025</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════
+             SECCIÓN I: INFORMACIÓN BÁSICA
+             ════════════════════════════════════════════ -->
+        <div class="fgh-section">
+            <i class="bi bi-person-vcard"></i> Sección I: Información Básica
+        </div>
+        <div style="border:2px solid #333; border-top:none; padding:15px;">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="field-label-sm">Nombres y Apellidos *</div>
+                    {% if reporte %}
+                    <input type="text" class="field-input" name="nombres_apellidos" required
+                           value="{{ reporte.nombres_apellidos }}">
+                    {% else %}
+                    <select class="form-select form-select-sm" id="selectEmpleado" name="empleado_id" required>
+                        <option value="">Seleccione empleado...</option>
+                        {% for emp in empleados %}
+                        <option value="{{ emp.id }}"
+                                data-nombre="{{ emp.user.nombre_completo }}"
+                                data-cargo="{{ emp.cargo }}"
+                                data-fecha="{{ emp.fecha_ingreso.strftime('%Y-%m-%d') }}"
+                                data-dep="{{ emp.user.gestor.area.nombre_area if emp.user.gestor else '' }}">
+                            {{ emp.user.nombre_completo }} — {{ emp.cargo }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="nombres_apellidos" id="hiddenNombre">
+                    {% endif %}
+                </div>
+                <div class="col-md-3">
+                    <div class="field-label-sm">Fecha de Ingreso *</div>
+                    <input type="date" class="field-input" name="fecha_ingreso" id="fechaIngreso" required
+                           value="{% if reporte %}{{ reporte.fecha_ingreso.strftime('%Y-%m-%d') }}{% endif %}">
+                </div>
+                <div class="col-md-3">
+                    <div class="field-label-sm">Cargo a Desempeñar *</div>
+                    <input type="text" class="field-input" name="cargo_desempenar" id="cargoDesempenar" required
+                           value="{% if reporte %}{{ reporte.cargo_desempenar }}{% endif %}">
+                </div>
+                <div class="col-md-3">
+                    <div class="field-label-sm">Vinculación</div>
+                    <div class="form-check mt-1">
+                        <input type="checkbox" class="checkbox-custom" name="vinculacion" id="vinculacion"
+                               {% if reporte and reporte.vinculacion %}checked{% endif %}>
+                        <label for="vinculacion" style="font-size:0.85rem;">Activo / Vinculado</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="field-label-sm">Dependencia *</div>
+                    <input type="text" class="field-input" name="dependencia" id="dependencia" required
+                           value="{% if reporte %}{{ reporte.dependencia }}{% endif %}">
+                </div>
+                {% if reporte %}
+                <div class="col-md-3">
+                    <div class="field-label-sm">Estado</div>
+                    <select class="form-select form-select-sm" name="estado">
+                        <option value="En Proceso" {% if reporte.estado == 'En Proceso' %}selected{% endif %}>En Proceso</option>
+                        <option value="Completado" {% if reporte.estado == 'Completado' %}selected{% endif %}>Completado</option>
+                        <option value="Aprobado" {% if reporte.estado == 'Aprobado' %}selected{% endif %}>Aprobado</option>
+                    </select>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════
+             SECCIÓN II: CRONOGRAMA (Predefinidos)
+             ════════════════════════════════════════════ -->
+        <div class="fgh-section">
+            <i class="bi bi-calendar3"></i> Sección II: Cronograma
+        </div>
+        <table class="fgh-table">
+            <thead>
+                <tr>
+                    <th style="width:5%;">#</th>
+                    <th style="width:45%;">TEMAS A DESARROLLAR</th>
+                    <th style="width:20%;">FECHA DE REALIZACIÓN</th>
+                    <th style="width:30%;">ENTRENADOR ASIGNADO</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set temas = reporte.TEMAS_PREDEFINIDOS if reporte else temas_predefinidos %}
+                {% set items_ii = cronograma_ii if reporte else [] %}
+                {% for i in range(temas|length) %}
+                <tr>
+                    <td style="text-align:center; font-weight:700;">{{ i + 1 }}</td>
+                    <td>
+                        {{ temas[i] }}
+                        <input type="hidden" name="tema_ii_{{ i }}" value="{{ temas[i] }}">
+                    </td>
+                    <td>
+                        <input type="date" name="fecha_ii_{{ i }}"
+                               value="{% if items_ii[i] and items_ii[i].fecha_realizacion %}{{ items_ii[i].fecha_realizacion.strftime('%Y-%m-%d') }}{% endif %}">
+                    </td>
+                    <td>
+                        <input type="text" name="entrenador_ii_{{ i }}" placeholder="Nombre..."
+                               value="{% if items_ii[i] %}{{ items_ii[i].entrenador_asignado }}{% endif %}"
+                               list="gestoresList">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- ════════════════════════════════════════════
+             SECCIÓN III: TEMAS ESPECÍFICOS (Dinámico)
+             ════════════════════════════════════════════ -->
+        <div class="fgh-section">
+            <i class="bi bi-list-check"></i> Sección III: Temas Específicos de la Dependencia y del Rol
+        </div>
+        <table class="fgh-table" id="tablaSeccionIII">
+            <thead>
+                <tr>
+                    <th style="width:5%;">#</th>
+                    <th style="width:45%;">TEMA ESPECÍFICO</th>
+                    <th style="width:20%;">FECHA DE REALIZACIÓN</th>
+                    <th style="width:30%;">ENTRENADOR ASIGNADO</th>
+                </tr>
+            </thead>
+            <tbody id="tbodySeccionIII">
+                {% set items_iii = cronograma_iii if reporte else [] %}
+                {% for item in items_iii %}
+                <tr data-row="{{ loop.index0 }}">
+                    <td style="text-align:center; font-weight:700;">{{ loop.index }}</td>
+                    <td><input type="text" name="tema_iii_{{ loop.index0 }}" value="{{ item.tema }}" required></td>
+                    <td><input type="date" name="fecha_iii_{{ loop.index0 }}" value="{% if item.fecha_realizacion %}{{ item.fecha_realizacion.strftime('%Y-%m-%d') }}{% endif %}"></td>
+                    <td><input type="text" name="entrenador_iii_{{ loop.index0 }}" value="{{ item.entrenador_asignado }}" list="gestoresList"></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="mt-2 mb-3 no-print">
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="agregarFila()">
+                <i class="bi bi-plus-circle"></i> Agregar Fila
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarUltimaFila()">
+                <i class="bi bi-dash-circle"></i> Eliminar Última Fila
+            </button>
+            <input type="hidden" name="total_filas_iii" id="totalFilasIII"
+                   value="{{ items_iii|length if reporte else 0 }}">
+        </div>
+
+        <!-- Datalist de gestores (se llena dinámicamente según empleado) -->
+        <datalist id="gestoresList">
+        </datalist>
+
+        <!-- ════════════════════════════════════════════
+             PIE DE PÁGINA
+             ════════════════════════════════════════════ -->
+        <div class="fgh-footer">
+            Este es un documento controlado, una vez se descargue o se imprima se considera NO CONTROLADO
+        </div>
+
+        <!-- Botón de Guardar -->
+        <div class="d-flex justify-content-end gap-2 mt-3 mb-3 no-print">
+            <a href="{{ url_for('rrhh.listar_reportes_control') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-check-lg"></i>
+                {{ 'Actualizar' if reporte else 'Guardar' }} Reporte
+            </button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+    // Auto-completar datos del empleado seleccionado y cargar capacitaciones aprobadas
+    const selectEmp = document.getElementById('selectEmpleado');
+    if (selectEmp) {
+        selectEmp.addEventListener('change', function() {
+            const opt = this.options[this.selectedIndex];
+            const empId = this.value;
+            document.getElementById('hiddenNombre').value = opt.dataset.nombre || '';
+            document.getElementById('fechaIngreso').value = opt.dataset.fecha || '';
+            document.getElementById('cargoDesempenar').value = opt.dataset.cargo || '';
+
+            // Limpiar datalist, dependencia y sección III
+            const datalist = document.getElementById('gestoresList');
+            datalist.innerHTML = '';
+            document.getElementById('dependencia').value = '';
+
+            // Limpiar sección III
+            const tbody = document.getElementById('tbodySeccionIII');
+            tbody.innerHTML = '';
+            filaCount = 0;
+            document.getElementById('totalFilasIII').value = 0;
+
+            if (!empId) return;
+
+            // Fetch capacitaciones aprobadas para este empleado
+            fetch(`/rrhh/api/empleado/${empId}/capacitaciones-aprobadas`)
+                .then(res => res.json())
+                .then(data => {
+                    // Llenar datalist con gestores únicos
+                    const gestores = data.gestores || [];
+                    gestores.forEach(nombre => {
+                        const option = document.createElement('option');
+                        option.value = nombre;
+                        datalist.appendChild(option);
+                    });
+
+                    // Auto-llenar dependencia con el área principal
+                    if (data.area_principal) {
+                        document.getElementById('dependencia').value = data.area_principal;
+                    }
+
+                    // Auto-llenar Sección III con las capacitaciones aprobadas
+                    const caps = data.capacitaciones || [];
+                    caps.forEach(cap => {
+                        const num = filaCount + 1;
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="text-align:center;font-weight:700;">${num}</td>
+                            <td><input type="text" name="tema_iii_${filaCount}" value="${cap.tema}" required></td>
+                            <td><input type="date" name="fecha_iii_${filaCount}" value="${cap.fecha}"></td>
+                            <td><input type="text" name="entrenador_iii_${filaCount}" value="${cap.gestor}" list="gestoresList"></td>
+                        `;
+                        tbody.appendChild(tr);
+                        filaCount++;
+                    });
+                    document.getElementById('totalFilasIII').value = filaCount;
+                })
+                .catch(err => console.error('Error cargando capacitaciones:', err));
+        });
+    }
+
+    // Agregar filas dinámicas a Sección III
+    let filaCount = parseInt(document.getElementById('totalFilasIII').value) || 0;
+
+    function agregarFila() {
+        const tbody = document.getElementById('tbodySeccionIII');
+        const num = filaCount + 1;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td style="text-align:center;font-weight:700;">${num}</td>
+            <td><input type="text" name="tema_iii_${filaCount}" required></td>
+            <td><input type="date" name="fecha_iii_${filaCount}"></td>
+            <td><input type="text" name="entrenador_iii_${filaCount}" list="gestoresList"></td>
+        `;
+        tbody.appendChild(tr);
+        filaCount++;
+        document.getElementById('totalFilasIII').value = filaCount;
+    }
+
+    function eliminarUltimaFila() {
+        const tbody = document.getElementById('tbodySeccionIII');
+        if (tbody.rows.length > 0) {
+            tbody.deleteRow(tbody.rows.length - 1);
+            filaCount = Math.max(0, filaCount - 1);
+            document.getElementById('totalFilasIII').value = filaCount;
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}
